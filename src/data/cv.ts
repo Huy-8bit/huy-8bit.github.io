@@ -62,9 +62,9 @@ export const skills: { title: string; summary: string; icon: IconName; items: st
   },
   {
     title: 'Core Banking',
-    summary: 'Lending products and batch operations.',
+    summary: 'Smart contracts and products on Thought Machine Vault Core.',
     icon: 'bank',
-    items: ['Vault Core', 'Temenos T24'],
+    items: ['Vault Core', 'Smart contracts'],
   },
 ];
 
@@ -103,12 +103,12 @@ export const experience: Role[] = [
   {
     company: 'Galaxy FinX',
     org: 'Vikki Digital Bank',
-    title: 'Software Engineer, Core Banking',
+    title: 'Software Engineer',
     start: 'Mar 2026',
     end: 'Present',
-    focus: 'Core banking · Backend',
+    focus: 'Vault Core · Smart contracts',
     summary:
-      'Build lending and overdraft products on Thought Machine Vault Core and integrate the platform with backend services. Rebuilt the simulation-testing framework in Go, set up the AWS deployment pipeline, and work on the migration to Temenos T24.',
+      'Develop smart contracts and banking products on Thought Machine Vault Core, along with the tooling to test and deploy them.',
   },
   {
     company: 'Vietlink',
