@@ -1,0 +1,245 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import { profile, impact, experience, featured, projects, skills, education, marquee } from '../data/cv';
+import { rich } from '../lib/rich';
+
+type Line = { i: number; k?: string; v?: string; c?: string; list?: boolean };
+const spec: Line[] = [
+  { i: 0, k: 'engineer' },
+  { i: 1, k: 'name', v: '"Nguyen Gia Huy"' },
+  { i: 1, k: 'role', v: '"Software Engineer, Core Banking"' },
+  { i: 1, k: 'company', v: '"Galaxy FinX · Vikki Digital Bank"' },
+  { i: 1, k: 'languages', v: '[Go, Python, Java]' },
+  { i: 1, k: 'focus' },
+  { i: 2, v: 'core banking', list: true },
+  { i: 2, v: 'cloud platforms', list: true },
+  { i: 2, v: 'data pipelines', list: true },
+  { i: 2, v: 'observability', list: true },
+  { i: 1, k: 'building', v: 'LockLens', c: '# open source' },
+];
+const year = new Date().getFullYear();
+---
+<Base>
+  <Header />
+  <main id="main">
+    <!-- Hero -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow reveal"><span class="pulse" aria-hidden="true"></span>{profile.role} · {profile.focus}</p>
+          <h1 id="hero-title" class="hero-title reveal">Nguyen Gia <em>Huy</em></h1>
+          <p class="hero-lead reveal">{profile.lead}</p>
+          <div class="hero-actions reveal">
+            <a class="btn btn-accent" href={`mailto:${profile.email}`}>
+              Get in touch
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            </a>
+            <a class="btn btn-line" href={profile.github} rel="me noopener">GitHub ↗</a>
+            <a class="btn btn-line" href={profile.linkedin} rel="me noopener">LinkedIn ↗</a>
+          </div>
+        </div>
+
+        <figure class="spec reveal" aria-label="Profile summary">
+          <div class="spec-bar" aria-hidden="true">
+            <span></span><span></span><span></span>
+            <b>huy.yaml</b>
+          </div>
+          <div class="spec-code">{spec.map((l) => (
+            <span class="ln" style={`--i:${l.i}`}>
+              {l.list && <span class="tk-p">- </span>}
+              {l.k && <><span class="tk-k">{l.k}</span><span class="tk-p">:</span></>}
+              {l.v && <span class={l.list ? 'tk-s' : l.v.startsWith('[') ? 'tk-a' : 'tk-s'}>{(l.k ? ' ' : '') + l.v}</span>}
+              {l.c && <span class="tk-c"> {l.c}</span>}
+            </span>
+          ))}<span class="ln caret-line" style="--i:0"><span class="caret" aria-hidden="true"></span></span></div>
+        </figure>
+      </div>
+
+      <div class="marquee" aria-label="Technologies">
+        <ul class="marquee-track">
+          {[...marquee, ...marquee].map((t, i) => <li aria-hidden={i >= marquee.length ? 'true' : undefined}>{t}</li>)}
+        </ul>
+      </div>
+    </section>
+
+    <!-- Impact -->
+    <section class="section" aria-labelledby="impact-title">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="kicker"><span>01</span> Impact</p>
+          <h2 id="impact-title">Numbers I have moved.</h2>
+        </div>
+        <ul class="impact">
+          {impact.map((s, i) => (
+            <li class="impact-card reveal" style={`--d:${i * 60}ms`}>
+              <span class="impact-value">{s.value}</span>
+              <span class="impact-label">{s.label}</span>
+              <span class="impact-detail">{s.detail}</span>
+              <span class="impact-where">{s.where}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- Experience -->
+    <section class="section" id="work" aria-labelledby="work-title">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="kicker"><span>02</span> Experience</p>
+          <h2 id="work-title">Where I have worked.</h2>
+        </div>
+        <ol class="timeline">
+          {experience.map((r) => (
+            <li class="role reveal">
+              <div class="role-meta">
+                <p class="role-dates"><time>{r.start}</time> — <time>{r.end}</time></p>
+                <h3 class="role-company">{r.company}</h3>
+                {r.org && <p class="role-org">{r.org}</p>}
+              </div>
+              <div class="role-body">
+                <p class="role-title">{r.title}{r.end === 'Present' && <span class="badge">Current</span>}</p>
+                <p class="role-product">{r.product}</p>
+                <ul class="role-points">
+                  {r.points.map((p) => <li set:html={rich(p)} />)}
+                </ul>
+                <ul class="tags" aria-label="Technologies">
+                  {r.tags.map((t) => <li>{t}</li>)}
+                </ul>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <!-- Projects -->
+    <section class="section" id="projects" aria-labelledby="projects-title">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="kicker"><span>03</span> Projects</p>
+          <h2 id="projects-title">Things I have built.</h2>
+        </div>
+
+        <article class="feature reveal" aria-labelledby="feature-title">
+          <div class="feature-copy">
+            <p class="feature-kind">{featured.kind}</p>
+            <h3 id="feature-title" class="feature-name">{featured.name}</h3>
+            <p class="feature-summary">{featured.summary}</p>
+            <ul class="role-points">
+              {featured.points.map((p) => <li set:html={rich(p)} />)}
+            </ul>
+            <ul class="tags" aria-label="Technologies">{featured.stack.map((t) => <li>{t}</li>)}</ul>
+            <div class="feature-links">
+              {featured.links?.map((l, i) => (
+                <a class={`btn ${i === 0 ? 'btn-ink' : 'btn-line'}`} href={l.href} rel="noopener">{l.label} ↗</a>
+              ))}
+            </div>
+          </div>
+          <div class="feature-visual" aria-hidden="true">
+            <svg viewBox="0 0 360 300" class="chain">
+              <defs>
+                <pattern id="dots" width="16" height="16" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" class="dot-grid" /></pattern>
+              </defs>
+              <rect width="360" height="300" fill="url(#dots)" />
+              <path class="edge" d="M180 78 C180 120 90 120 90 162" />
+              <path class="edge" d="M180 78 L180 162" />
+              <path class="edge" d="M180 78 C180 120 270 120 270 162" />
+              <path class="edge" d="M90 186 C90 214 52 214 52 236" />
+              <path class="edge" d="M90 186 C90 214 128 214 128 236" />
+              <path class="edge" d="M270 186 L270 236" />
+              <g class="node root"><rect x="122" y="50" width="116" height="34" rx="9" /><text x="180" y="72">root blocker</text></g>
+              <g class="node"><rect x="54" y="160" width="72" height="28" rx="8" /><text x="90" y="179">waiter</text></g>
+              <g class="node"><rect x="144" y="160" width="72" height="28" rx="8" /><text x="180" y="179">waiter</text></g>
+              <g class="node"><rect x="234" y="160" width="72" height="28" rx="8" /><text x="270" y="179">waiter</text></g>
+              <g class="node faint"><rect x="20" y="234" width="64" height="24" rx="7" /><text x="52" y="250">waiter</text></g>
+              <g class="node faint"><rect x="96" y="234" width="64" height="24" rx="7" /><text x="128" y="250">waiter</text></g>
+              <g class="node faint"><rect x="238" y="234" width="64" height="24" rx="7" /><text x="270" y="250">waiter</text></g>
+            </svg>
+            <p class="feature-caption">Blocking chain — one root blocker, many waiters</p>
+          </div>
+        </article>
+
+        <div class="projects">
+          {projects.map((p, i) => (
+            <article class="project reveal" style={`--d:${i * 80}ms`}>
+              <p class="feature-kind">{p.kind}</p>
+              <h3 class="project-name">{p.name}</h3>
+              <ul class="role-points">{p.points.map((pt) => <li set:html={rich(pt)} />)}</ul>
+              <ul class="tags" aria-label="Technologies">{p.stack.map((t) => <li>{t}</li>)}</ul>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills -->
+    <section class="section" id="skills" aria-labelledby="skills-title">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="kicker"><span>04</span> Skills</p>
+          <h2 id="skills-title">The toolbox.</h2>
+        </div>
+        <dl class="skills">
+          {skills.map((s) => (
+            <div class="skill-row reveal">
+              <dt>{s.group}</dt>
+              <dd><ul class="chips">{s.items.map((it) => <li>{it}</li>)}</ul></dd>
+            </div>
+          ))}
+        </dl>
+
+        <div class="edu reveal">
+          <p class="kicker"><span>05</span> Education &amp; certifications</p>
+          <ul class="edu-list">
+            {education.map((e) => (
+              <li><span class="edu-title">{e.title}</span><span class="edu-detail">{e.detail}</span></li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="contact" id="contact" aria-labelledby="contact-title">
+      <div class="wrap contact-inner reveal">
+        <p class="kicker kicker-light"><span>06</span> Contact</p>
+        <h2 id="contact-title">Building something that <em>must not fail?</em><br />Let’s talk.</h2>
+        <a class="contact-mail" href={`mailto:${profile.email}`}>{profile.email}</a>
+        <div class="contact-links">
+          <a href={profile.github} rel="me noopener">GitHub ↗</a>
+          <a href={profile.linkedin} rel="me noopener">LinkedIn ↗</a>
+          <a href={featured.links?.[0].href} rel="noopener">LockLens ↗</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span>© {year} {profile.name}</span>
+      <span>Built with Astro · <a href="https://github.com/Huy-8bit/huy-8bit.github.io" rel="noopener">Source ↗</a></span>
+    </div>
+  </footer>
+
+  <script>
+    const items = document.querySelectorAll<HTMLElement>('.reveal');
+    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      items.forEach((el) => el.classList.add('in'));
+    } else {
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              e.target.classList.add('in');
+              io.unobserve(e.target);
+            }
+          }
+        },
+        { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+      );
+      items.forEach((el) => io.observe(el));
+    }
+  </script>
+</Base>

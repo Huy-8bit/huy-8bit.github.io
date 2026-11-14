@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+const base = import.meta.env.BASE_URL;
+---
+<Base title="Page not found — Nguyen Gia Huy" noindex>
+  <Header />
+  <main id="main" class="wrap notfound">
+    <p class="kicker"><span>404</span> Not found</p>
+    <h1>This page took a <em>different path.</em></h1>
+    <p>The page you are looking for does not exist or has moved.</p>
+    <div class="hero-actions">
+      <a class="btn btn-ink" href={base}>Back to home</a>
+      <a class="btn btn-line" href="https://huy-8bit.github.io/locklens-site/">LockLens site ↗</a>
+    </div>
+  </main>
+</Base>
+
+<style>
+  .notfound {
+    min-height: calc(100vh - 64px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+    padding-top: 64px;
+    padding-bottom: 96px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2.8rem, 8vw, 5.4rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    max-width: 12em;
+  }
+  h1 em {
+    color: var(--accent);
+  }
+  p:not(.kicker) {
+    color: var(--ink-2);
+  }
+</style>
