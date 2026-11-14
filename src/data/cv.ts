@@ -7,7 +7,7 @@ export const profile = {
   email: 'johnnynguyen882@gmail.com',
   github: 'https://github.com/Huy-8bit',
   linkedin: 'https://www.linkedin.com/in/huy8bit',
-  headline: ['Software Engineer,', ''],
+  headline: ['Software Engineer', ''],
   intro:
     'I work with backend services, distributed systems, databases, and cloud infrastructure, with experience building systems for banking and data platforms.',
 };
