@@ -67,10 +67,15 @@ import incident from '../assets/locklens-incident.png';
         <div class="project-grid">
           {projects.map((p, i) => (
             <article class="project-card reveal" style={`--d:${i * 80}ms`}>
-              <p class="eyebrow">{p.label}</p>
-              <h3>{p.name}</h3>
-              <p>{p.summary}</p>
-              <ul class="chips chips-sm" aria-label={`${p.name} technologies`}>{p.stack.map((t) => <li>{t}</li>)}</ul>
+              <div class="project-body">
+                <p class="eyebrow">{p.label}</p>
+                <h3>{p.name}</h3>
+                <p>{p.summary}</p>
+                <ul class="chips chips-sm" aria-label={`${p.name} technologies`}>{p.stack.map((t) => <li>{t}</li>)}</ul>
+              </div>
+              {p.source && (
+                <a class="btn btn-outline project-link" href={p.source} rel="noopener"><Icon name="github" size={18} /> Source code</a>
+              )}
             </article>
           ))}
         </div>

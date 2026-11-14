@@ -79,18 +79,13 @@ export const featured = {
   source: 'https://github.com/Huy-8bit/locklens',
 };
 
-export const projects: { name: string; label: string; summary: string; stack: string[] }[] = [
-  {
-    name: 'DattingQ',
-    label: 'Dating platform',
-    summary: 'Backend services on gRPC-Gateway, Kafka, MongoDB and Redis, with multi-cluster failover and OpenTelemetry-based observability.',
-    stack: ['gRPC', 'Kafka', 'MongoDB', 'Redis'],
-  },
+export const projects: { name: string; label: string; summary: string; stack: string[]; source?: string }[] = [
   {
     name: 'MeetQ',
     label: 'Online meetings',
     summary: 'A real-time meeting platform on LiveKit with live transcription, voice translation and meeting summaries using OpenAI models.',
     stack: ['LiveKit', 'OpenAI', 'Real-time'],
+    source: 'https://github.com/Huy-8bit/MeetQ',
   },
 ];
 

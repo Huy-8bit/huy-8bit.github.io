@@ -752,6 +752,32 @@ img {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+/* A single project spans the row, with its link beside the text. */
+.project-grid:has(> :only-child) {
+  grid-template-columns: 1fr;
+}
+.project-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.project-link {
+  align-self: flex-start;
+}
+@media (min-width: 768px) {
+  .project-grid > .project-card:only-child {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  .project-grid > .project-card:only-child .project-body {
+    max-width: 640px;
+  }
+  .project-grid > .project-card:only-child .project-link {
+    align-self: center;
+  }
+}
 .project-card {
   padding: clamp(26px, 3vw, 36px);
   border-radius: var(--radius-card);
