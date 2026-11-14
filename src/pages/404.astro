@@ -1,43 +1,60 @@
 ---
 import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
-const base = import.meta.env.BASE_URL;
+import Icon from '../components/Icon.astro';
+const home = import.meta.env.BASE_URL;
 ---
 <Base title="Page not found — Nguyen Gia Huy" noindex>
-  <Header />
-  <main id="main" class="wrap notfound">
-    <p class="kicker"><span>404</span> Not found</p>
-    <h1>This page took a <em>different path.</em></h1>
-    <p>The page you are looking for does not exist or has moved.</p>
-    <div class="hero-actions">
-      <a class="btn btn-ink" href={base}>Back to home</a>
-      <a class="btn btn-line" href="https://huy-8bit.github.io/locklens-site/">LockLens site ↗</a>
+  <Header linkBase={home} />
+  <main id="main" class="notfound">
+    <div class="container">
+      <p class="kicker kicker-on-hero">Error 404</p>
+      <h1>This page doesn’t exist.</h1>
+      <p class="notfound-text">The link may be broken, or the page may have moved.</p>
+      <div class="notfound-actions">
+        <a class="btn btn-light" href={home}>Back to home <Icon name="arrow-right" size={18} /></a>
+        <a class="btn btn-ghost" href="https://huy-8bit.github.io/locklens-site/">LockLens website <Icon name="arrow-up-right" size={18} /></a>
+      </div>
     </div>
   </main>
 </Base>
 
 <style>
   .notfound {
-    min-height: calc(100vh - 64px);
+    min-height: 100svh;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 20px;
-    padding-top: 64px;
-    padding-bottom: 96px;
+    align-items: center;
+    padding: calc(var(--header-h) + 48px) 0 96px;
+    background:
+      radial-gradient(40% 50% at 70% 40%, var(--hero-glow), transparent 70%),
+      var(--hero);
   }
   h1 {
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(2.8rem, 8vw, 5.4rem);
-    line-height: 1;
-    letter-spacing: -0.02em;
+    margin-top: 18px;
     max-width: 12em;
+    font-size: clamp(2.6rem, 7vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.045em;
+    color: var(--white);
   }
-  h1 em {
+  .notfound-text {
+    margin-top: 20px;
+    font-size: var(--fs-lead);
+    color: var(--hero-ink);
+  }
+  .notfound-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 32px;
+  }
+  .btn-ghost {
+    border-color: rgb(255 255 255 / 0.75);
+    color: var(--white);
+  }
+  .btn-ghost:hover {
+    background: var(--white);
     color: var(--accent);
-  }
-  p:not(.kicker) {
-    color: var(--ink-2);
   }
 </style>

@@ -1,0 +1,10 @@
+---
+import { profile } from '../data/cv';
+const year = new Date().getFullYear();
+---
+<footer class="footer">
+  <div class="container footer-inner">
+    <span>© {year} {profile.name}</span>
+    <span>Built with Astro · <a href="https://github.com/Huy-8bit/huy-8bit.github.io" rel="noopener">Source</a></span>
+  </div>
+</footer>

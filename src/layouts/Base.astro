@@ -1,8 +1,5 @@
 ---
-import '@fontsource-variable/inter';
-import '@fontsource-variable/jetbrains-mono';
-import '@fontsource/instrument-serif/400.css';
-import '@fontsource/instrument-serif/400-italic.css';
+import '@fontsource-variable/plus-jakarta-sans/wght.css';
 import '../styles/global.css';
 import { profile } from '../data/cv';
 
@@ -13,7 +10,7 @@ interface Props {
 }
 const {
   title = `${profile.name} — ${profile.role}`,
-  description = 'Software engineer working on core banking, cloud platforms, data pipelines and observability. Go, Python, AWS, Kubernetes, PostgreSQL.',
+  description = 'Software engineer focused on backend systems: services, distributed systems, databases and cloud infrastructure for banking and data platforms.',
   noindex = false,
 } = Astro.props;
 const base = import.meta.env.BASE_URL;
@@ -26,7 +23,7 @@ const person = {
   jobTitle: profile.role,
   url: new URL(base, Astro.site).toString(),
   sameAs: [profile.github, profile.linkedin],
-  knowsAbout: ['Core banking', 'Go', 'Python', 'AWS', 'Kubernetes', 'PostgreSQL', 'Observability'],
+  knowsAbout: ['Backend engineering', 'Distributed systems', 'Databases', 'Cloud infrastructure', 'Core banking'],
 };
 ---
 <!doctype html>
@@ -40,8 +37,8 @@ const person = {
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
     <link rel="sitemap" href={`${base}sitemap-index.xml`} />
-    <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0f1013" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#8093bd" />
+    <meta name="color-scheme" content="light" />
     <meta property="og:type" content="profile" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -51,14 +48,8 @@ const person = {
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <script type="application/ld+json" set:html={JSON.stringify(person)} />
-    <script is:inline>
-      (() => {
-        let t = null;
-        try { t = localStorage.getItem('theme'); } catch {}
-        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
-        document.documentElement.classList.add('js');
-      })();
-    </script>
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <slot name="head" />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>

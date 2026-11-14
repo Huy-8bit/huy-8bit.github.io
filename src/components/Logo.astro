@@ -1,0 +1,15 @@
+---
+// Stepped "H" monogram. Inherits its colour from `color`.
+interface Props {
+  size?: number;
+  class?: string;
+}
+const { size = 40, class: cls } = Astro.props;
+---
+<svg class={cls} width={size} height={size} viewBox="0 0 40 40" fill="currentColor" aria-hidden="true" focusable="false">
+  <rect x="7" y="4" width="6" height="18" />
+  <rect x="3" y="20" width="6" height="16" />
+  <rect x="13" y="16" width="14" height="6" />
+  <rect x="27" y="4" width="6" height="32" />
+  <rect x="19" y="26" width="4" height="10" />
+</svg>
