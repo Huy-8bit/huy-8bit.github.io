@@ -761,8 +761,13 @@ img {
   flex-direction: column;
   gap: 24px;
 }
-.project-link {
-  align-self: flex-start;
+.project-body {
+  flex: 1;
+}
+.project-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 @media (min-width: 768px) {
   .project-grid > .project-card:only-child {
@@ -774,7 +779,7 @@ img {
   .project-grid > .project-card:only-child .project-body {
     max-width: 640px;
   }
-  .project-grid > .project-card:only-child .project-link {
+  .project-grid > .project-card:only-child .project-links {
     align-self: center;
   }
 }

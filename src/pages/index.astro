@@ -71,10 +71,20 @@ import incident from '../assets/locklens-incident.png';
                 <p class="eyebrow">{p.label}</p>
                 <h3>{p.name}</h3>
                 <p>{p.summary}</p>
+                {p.detail && <p>{p.detail}</p>}
                 <ul class="chips chips-sm" aria-label={`${p.name} technologies`}>{p.stack.map((t) => <li>{t}</li>)}</ul>
               </div>
-              {p.source && (
-                <a class="btn btn-outline project-link" href={p.source} rel="noopener"><Icon name="github" size={18} /> Source code</a>
+              {p.links && (
+                <div class="project-links">
+                  {p.links.map((l) => (
+                    <a class={`btn ${l.kind === 'website' ? 'btn-primary' : 'btn-outline'} project-link`} href={l.href} rel="noopener">
+                      {l.kind === 'source' && <Icon name="github" size={18} />}
+                      {l.kind === 'download' && <Icon name="download" size={18} />}
+                      {l.label}
+                      {l.kind === 'website' && <Icon name="arrow-up-right" size={18} />}
+                    </a>
+                  ))}
+                </div>
               )}
             </article>
           ))}
@@ -130,7 +140,7 @@ import incident from '../assets/locklens-incident.png';
         <div class="reveal">
           <p class="kicker kicker-on-hero">Contact</p>
           <h2 id="contact-title" class="contact-title">Let’s get in touch.</h2>
-          <p class="contact-text">I’m happy to talk about backend systems, infrastructure, or LockLens. Email is the best way to reach me.</p>
+          <p class="contact-text">I’m happy to talk about backend systems, infrastructure, LockLens or ExtendPad. Email is the best way to reach me.</p>
         </div>
         <div class="contact-actions reveal" style="--d:80ms">
           <a class="btn btn-light btn-lg" href={`mailto:${profile.email}`}><Icon name="mail" size={20} /> {profile.email}</a>

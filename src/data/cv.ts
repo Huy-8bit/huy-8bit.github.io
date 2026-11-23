@@ -27,7 +27,9 @@ export type IconName =
   | 'menu'
   | 'close'
   | 'cap'
-  | 'award';
+  | 'award'
+  | 'download'
+  | 'devices';
 
 export const skills: { title: string; summary: string; icon: IconName; items: string[] }[] = [
   {
@@ -66,6 +68,12 @@ export const skills: { title: string; summary: string; icon: IconName; items: st
     icon: 'bank',
     items: ['Vault Core', 'Smart contracts'],
   },
+  {
+    title: 'Apple & Android',
+    summary: 'Native Mac and Android apps with hardware video.',
+    icon: 'devices',
+    items: ['Swift', 'SwiftUI', 'Kotlin', 'VideoToolbox / MediaCodec'],
+  },
 ];
 
 export const featured = {
@@ -79,13 +87,39 @@ export const featured = {
   source: 'https://github.com/Huy-8bit/locklens',
 };
 
-export const projects: { name: string; label: string; summary: string; stack: string[]; source?: string }[] = [
+export type ProjectLink = { label: string; href: string; kind: 'website' | 'source' | 'download' };
+
+export const projects: {
+  name: string;
+  label: string;
+  summary: string;
+  detail?: string;
+  stack: string[];
+  links?: ProjectLink[];
+}[] = [
+  {
+    name: 'ExtendPad',
+    label: 'Mac + Android tablet',
+    summary: 'Turns an Android tablet into a real extended display for the Mac over USB-C.',
+    detail:
+      'A virtual macOS monitor is captured with ScreenCaptureKit, hardware-encoded with VideoToolbox and decoded on the tablet with MediaCodec. It runs over adb reverse with no Wi-Fi, with a locally drawn 120 Hz cursor and ~30–40 ms latency measured on a Huawei MatePad SE.',
+    stack: ['Swift', 'SwiftUI', 'Kotlin', 'ScreenCaptureKit', 'VideoToolbox', 'MediaCodec'],
+    links: [
+      { label: 'Visit website', href: 'https://huy-8bit.github.io/extendpad-site/', kind: 'website' },
+      { label: 'Source code', href: 'https://github.com/Huy-8bit/ExtendPad', kind: 'source' },
+      { label: 'Download', href: 'https://huy-8bit.github.io/extendpad-site/#download', kind: 'download' },
+    ],
+    // TODO(images): project cards have no image slot yet. When real photos exist, add two images with
+    // these alt texts (no placeholders or generated screenshots):
+    //   - "ExtendPad extended macOS desktop on a Huawei MatePad SE"
+    //   - "ExtendPad menu bar app on the Mac"
+  },
   {
     name: 'MeetQ',
     label: 'Online meetings',
     summary: 'A real-time meeting platform on LiveKit with live transcription, voice translation and meeting summaries using OpenAI models.',
     stack: ['LiveKit', 'OpenAI', 'Real-time'],
-    source: 'https://github.com/Huy-8bit/MeetQ',
+    links: [{ label: 'Source code', href: 'https://github.com/Huy-8bit/MeetQ', kind: 'source' }],
   },
 ];
 
