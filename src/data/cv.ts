@@ -102,7 +102,7 @@ export const projects: {
     label: 'Mac + Android tablet',
     summary: 'Turns an Android tablet into a real extended display for the Mac over USB-C.',
     detail:
-      'A virtual macOS monitor is captured with ScreenCaptureKit, hardware-encoded with VideoToolbox and decoded on the tablet with MediaCodec. It runs over adb reverse with no Wi-Fi, with a locally drawn 120 Hz cursor and ~30–40 ms latency measured on a Huawei MatePad SE.',
+      'A virtual macOS monitor is captured with ScreenCaptureKit, hardware-encoded with VideoToolbox and decoded on the tablet with MediaCodec. It runs over adb reverse with no Wi-Fi, with a locally drawn 120 Hz cursor.',
     stack: ['Swift', 'SwiftUI', 'Kotlin', 'ScreenCaptureKit', 'VideoToolbox', 'MediaCodec'],
     links: [
       { label: 'Visit website', href: 'https://huy-8bit.github.io/extendpad-site/', kind: 'website' },
@@ -111,7 +111,7 @@ export const projects: {
     ],
     // TODO(images): project cards have no image slot yet. When real photos exist, add two images with
     // these alt texts (no placeholders or generated screenshots):
-    //   - "ExtendPad extended macOS desktop on a Huawei MatePad SE"
+    //   - "ExtendPad extending a macOS desktop onto an Android tablet"
     //   - "ExtendPad menu bar app on the Mac"
   },
   {
