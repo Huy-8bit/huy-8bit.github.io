@@ -7,6 +7,9 @@ export default defineConfig({
   site: process.env.SITE_URL || 'https://huy-8bit.github.io',
   base: process.env.BASE_PATH || '/',
   trailingSlash: 'ignore',
-  integrations: [sitemap()],
+  integrations: [sitemap({ filter: (page) => !page.includes('/404') })],
   build: { format: 'directory' },
+  markdown: {
+    shikiConfig: { themes: { light: 'github-light', dark: 'github-dark-dimmed' }, defaultColor: false },
+  },
 });

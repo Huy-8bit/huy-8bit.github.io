@@ -1,0 +1,202 @@
+---
+// Case-study pages: /projects/locklens/, /projects/keyshift/, /projects/extendpad/.
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import Flow from '../../components/Flow.astro';
+import Shots from '../../components/Shots.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import ProjectLinks from '../../components/ProjectLinks.astro';
+import { projects, type Project } from '../../data/projects';
+import { keyshiftFlow, locklensFlow, extendpadFlow } from '../../data/flows';
+import { profile } from '../../data/cv';
+import { url } from '../../lib/url';
+
+export const getStaticPaths = (() => projects.map((p) => ({ params: { slug: p.slug }, props: { project: p } }))) satisfies GetStaticPaths;
+
+interface Props {
+  project: Project;
+}
+const { project: p } = Astro.props;
+const index = projects.indexOf(p);
+const next = projects[(index + 1) % projects.length];
+const flow = { keyshift: keyshiftFlow, locklens: locklensFlow, extendpad: extendpadFlow }[p.slug];
+const toc = p.sections.map((s) => ({ id: s.id, title: s.title }));
+
+const licenses: Record<string, string> = {
+  MIT: 'https://opensource.org/license/mit',
+  'Apache 2.0': 'https://www.apache.org/licenses/LICENSE-2.0',
+};
+const license = p.facts.find((f) => f.label === 'License')?.value;
+const source = p.links.find((l) => l.kind === 'source')?.href;
+const website = p.links.find((l) => l.kind === 'website')?.href;
+const pageUrl = new URL(url(`projects/${p.slug}/`), Astro.site).toString();
+const homeUrl = new URL(url(), Astro.site).toString();
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareSourceCode',
+    name: p.name,
+    description: p.tagline,
+    url: website,
+    codeRepository: source,
+    programmingLanguage: p.stack.slice(0, 2),
+    ...(license && licenses[license] ? { license: licenses[license] } : {}),
+    author: { '@type': 'Person', name: profile.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: profile.name, item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: 'Work', item: `${homeUrl}#work` },
+      { '@type': 'ListItem', position: 3, name: p.name, item: pageUrl },
+    ],
+  },
+];
+---
+<Base title={`${p.name}: ${p.tagline.replace(/\.$/, '')} · ${profile.name}`} description={p.description} jsonLd={jsonLd} lightbox={!!p.shots}>
+  <main id="main">
+    <header class="cs-hero">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container" style="position:relative">
+        <a class="back" href={`${url()}#${p.slug}`}><Icon name="arrow-left" size={15} /> All work</a>
+        <p class="feature-meta label"><span>{p.area}</span><span>{p.kind}</span></p>
+        <h1>{p.name}</h1>
+        <p class="cs-tagline">{p.tagline}</p>
+        <p class="cs-intro">{p.intro}</p>
+        <ProjectLinks links={p.links} name={p.name} skipCase />
+        <dl class="facts">
+          {p.facts.map((f) => (
+            <div><dt class="label">{f.label}</dt><dd>{f.value}</dd></div>
+          ))}
+          <div><dt class="label">Built with</dt><dd>{p.stack.join(', ')}</dd></div>
+        </dl>
+      </div>
+    </header>
+
+    <div class="container grid-12 cs-layout">
+      <nav class="cs-toc" aria-label="On this page">
+        <p class="label">On this page</p>
+        <ol>
+          {toc.map((t) => <li><a href={`#${t.id}`} data-toc={t.id}>{t.title}</a></li>)}
+        </ol>
+      </nav>
+
+      <div class="cs-main">
+        {p.sections.map((s) => (
+          <section class="cs-section" id={s.id} aria-labelledby={`${s.id}-title`}>
+            <h2 id={`${s.id}-title`}>{s.title}</h2>
+
+            {s.kind === 'text' && s.paragraphs.map((para) => <p class="cs-text" set:html={para} />)}
+
+            {s.kind === 'items' && (
+              <>
+                {s.intro && <p class="cs-text" set:html={s.intro} />}
+                {s.diagram && <Flow flow={flow} />}
+                <ul class="cs-items">
+                  {s.items.map((it) => (
+                    <li><h3>{it.title}</h3><p set:html={it.body} /></li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            {s.kind === 'list' && (
+              <>
+                {s.intro && <p class="cs-text" set:html={s.intro} />}
+                <ul class="points">{s.points.map((pt) => <li set:html={pt} />)}</ul>
+                {s.footer && <p class="cs-footer-note">{s.footer}</p>}
+              </>
+            )}
+
+            {s.kind === 'table' && (
+              <>
+                {s.intro && <p class="cs-text" set:html={s.intro} />}
+                <div class="table-wrap" role="region" aria-label={`${s.title}: table`} tabindex="0">
+                  <table>
+                    <thead><tr>{s.columns.map((c) => <th scope="col">{c}</th>)}</tr></thead>
+                    <tbody>
+                      {s.rows.map((r) => (
+                        <tr><th scope="row">{r[0]}</th><td>{r[1]}</td><td>{r[2]}</td></tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {s.after && <p class="table-after">{s.after}</p>}
+              </>
+            )}
+
+            {s.kind === 'code' && (
+              <>
+                {s.intro && <p class="cs-text" set:html={s.intro} />}
+                <CodeBlock code={s.code} lang={s.lang} title={s.lang === 'go' ? 'Go' : 'Terminal'} />
+              </>
+            )}
+
+            {s.kind === 'shots' && p.shots && (
+              <>
+                {s.intro && <p class="cs-text">{s.intro}</p>}
+                <Shots shots={p.shots} class="shots-4" sizes={['(min-width: 1080px) 420px, (min-width: 640px) 46vw, 92vw', '(min-width: 1080px) 420px, (min-width: 640px) 46vw, 92vw']} />
+              </>
+            )}
+
+            {s.kind === 'bench' && (
+              <>
+                <p class="cs-text">{s.intro}</p>
+                <div class="bench">
+                  <dl class="bench-env" aria-label="Benchmark environment">
+                    {s.environment.map((f) => <div><dt class="label">{f.label}</dt><dd>{f.value}</dd></div>)}
+                  </dl>
+                  <ul class="bench-results" aria-label="Benchmark results">
+                    {s.results.map((r) => (
+                      <li>
+                        <span class="metric-value">{r.value}</span>
+                        <span class="metric-label">{r.label}</span>
+                        <span class="metric-note">{r.note}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p class="bench-after">{s.after}</p>
+                  <p><a class="link" href={s.source} rel="noopener">Full method and results in the repository</a></p>
+                </div>
+              </>
+            )}
+          </section>
+        ))}
+
+        <nav class="cs-next" aria-label="More projects">
+          <a href={url(`projects/${next.slug}/`)}>
+            <span class="label">Next project</span>
+            <strong>{next.name} <Icon name="arrow-right" size={20} /></strong>
+          </a>
+          <a href={`${url()}#work`}>
+            <span class="label">Back to</span>
+            <strong>All work</strong>
+          </a>
+        </nav>
+      </div>
+    </div>
+  </main>
+</Base>
+
+<script>
+  // Mark the table-of-contents entry for the section in view.
+  const links = new Map<string, HTMLAnchorElement>();
+  document.querySelectorAll<HTMLAnchorElement>('[data-toc]').forEach((a) => links.set(a.dataset.toc!, a));
+  if (links.size && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          links.forEach((a, id) => (id === e.target.id ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')));
+        }
+      },
+      { rootMargin: '-30% 0px -60% 0px' },
+    );
+    links.forEach((_, id) => {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    });
+  }
+</script>

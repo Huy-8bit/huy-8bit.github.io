@@ -1,0 +1,52 @@
+---
+// Hero illustration: a conceptual request trace, one span held up by a lock wait.
+// Labels are generic on purpose; this does not depict any real system.
+const ticks = [132, 210, 288, 366, 444];
+const rows = [
+  { label: 'request', x: 132, w: 312, cls: 'tr-root' },
+  { label: 'auth', x: 140, w: 36 },
+  { label: 'cache.get', x: 180, w: 10 },
+  { label: 'db.query', x: 194, w: 196, slow: true },
+  { label: 'queue.publish', x: 394, w: 26 },
+  { label: 'response', x: 424, w: 18 },
+];
+const y = (i: number) => 44 + i * 40;
+---
+<figure class="trace ticks">
+  <svg viewBox="0 0 460 262" role="img" aria-label="Illustration of a request trace in which a database query spends most of its time waiting on a lock">
+    <defs>
+      <pattern id="tr-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line class="tr-hatch-line" x1="0" y1="0" x2="0" y2="6" />
+      </pattern>
+    </defs>
+    <line class="tr-axis" x1="132" y1="20" x2="444" y2="20" />
+    {ticks.map((x) => (
+      <>
+        <line class="tr-axis" x1={x} y1="16" x2={x} y2="24" />
+        <line class="tr-grid" x1={x} y1="30" x2={x} y2="258" />
+      </>
+    ))}
+    <text class="tr-label tr-label-dim" x="0" y="24">span</text>
+    {rows.map((r, i) => (
+      <g>
+        <text class="tr-label" x="0" y={y(i) + 10}>{r.label}</text>
+        {r.slow ? (
+          <>
+            <rect class="tr-wait tr-anim" style={`--i:${i}`} x={r.x} y={y(i)} width="136" height="12" rx="2" />
+            <rect class="tr-hot tr-anim" style={`--i:${i + 1}`} x={r.x + 136} y={y(i)} width={r.w - 136} height="12" rx="2" />
+          </>
+        ) : (
+          <rect class:list={[r.cls ?? 'tr-bar', 'tr-anim']} style={`--i:${i}`} x={r.x} y={y(i)} width={r.w} height="12" rx="2" />
+        )}
+      </g>
+    ))}
+    <g class="tr-fade">
+      <path class="tr-bracket" d={`M194 ${y(3) + 18} v5 H330 v-5`} />
+      <text class="tr-note" x="262" y={y(3) + 36} text-anchor="middle">lock wait</text>
+    </g>
+  </svg>
+  <figcaption class="trace-cap">
+    <span class="label">Illustration</span>
+    <span class="label">One slow request, broken into spans</span>
+  </figcaption>
+</figure>

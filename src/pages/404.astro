@@ -1,60 +1,20 @@
 ---
 import Base from '../layouts/Base.astro';
-import Header from '../components/Header.astro';
 import Icon from '../components/Icon.astro';
-const home = import.meta.env.BASE_URL;
+import { profile } from '../data/cv';
+import { url } from '../lib/url';
 ---
-<Base title="Page not found — Nguyen Gia Huy" noindex>
-  <Header linkBase={home} />
+<Base title={`Page not found · ${profile.name}`} noindex>
   <main id="main" class="notfound">
-    <div class="container">
-      <p class="kicker kicker-on-hero">Error 404</p>
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="container" style="position:relative">
+      <p class="sh-label label"><span class="sh-num">404</span>Not found</p>
       <h1>This page doesn’t exist.</h1>
-      <p class="notfound-text">The link may be broken, or the page may have moved.</p>
-      <div class="notfound-actions">
-        <a class="btn btn-light" href={home}>Back to home <Icon name="arrow-right" size={18} /></a>
-        <a class="btn btn-ghost" href="https://huy-8bit.github.io/locklens-site/">LockLens website <Icon name="arrow-up-right" size={18} /></a>
+      <p>The link may be broken, or the page may have moved.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href={url()}>Back to home <Icon name="arrow-right" size={17} class="i-arrow" /></a>
+        <a class="btn btn-secondary" href={`${url()}#work`}>Selected work</a>
       </div>
     </div>
   </main>
 </Base>
-
-<style>
-  .notfound {
-    min-height: 100svh;
-    display: flex;
-    align-items: center;
-    padding: calc(var(--header-h) + 48px) 0 96px;
-    background:
-      radial-gradient(40% 50% at 70% 40%, var(--hero-glow), transparent 70%),
-      var(--hero);
-  }
-  h1 {
-    margin-top: 18px;
-    max-width: 12em;
-    font-size: clamp(2.6rem, 7vw, 5.5rem);
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.045em;
-    color: var(--white);
-  }
-  .notfound-text {
-    margin-top: 20px;
-    font-size: var(--fs-lead);
-    color: var(--hero-ink);
-  }
-  .notfound-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 32px;
-  }
-  .btn-ghost {
-    border-color: rgb(255 255 255 / 0.75);
-    color: var(--white);
-  }
-  .btn-ghost:hover {
-    background: var(--white);
-    color: var(--accent);
-  }
-</style>

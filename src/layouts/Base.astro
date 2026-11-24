@@ -1,30 +1,41 @@
 ---
-import '@fontsource-variable/plus-jakarta-sans/wght.css';
+import '@fontsource-variable/geist/wght.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
 import '../styles/global.css';
+import geistLatin from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Lightbox from '../components/Lightbox.astro';
 import { profile } from '../data/cv';
+import { url } from '../lib/url';
+import { getPosts } from '../lib/writing';
 
 interface Props {
   title?: string;
   description?: string;
+  /** Open Graph type. */
+  type?: 'website' | 'profile' | 'article';
+  /** Extra JSON-LD objects for this page. */
+  jsonLd?: Record<string, unknown>[];
+  home?: boolean;
   noindex?: boolean;
+  /** Include the screenshot lightbox. */
+  lightbox?: boolean;
+  publishedTime?: string;
 }
 const {
-  title = `${profile.name} — ${profile.role}`,
-  description = 'Software engineer focused on backend systems: services, distributed systems, databases and cloud infrastructure for banking and data platforms.',
+  title = `${profile.name}, ${profile.role}`,
+  description = 'Nguyen Gia Huy is a software engineer working on backend systems, distributed systems, databases and cloud infrastructure, and the author of LockLens and KeyShift.',
+  type = 'website',
+  jsonLd = [],
+  home = false,
   noindex = false,
+  lightbox = false,
+  publishedTime,
 } = Astro.props;
-const base = import.meta.env.BASE_URL;
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
-const ogImage = new URL(`${base}og.png`, Astro.site).toString();
-const person = {
-  '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: profile.name,
-  jobTitle: profile.role,
-  url: new URL(base, Astro.site).toString(),
-  sameAs: [profile.github, profile.linkedin],
-  knowsAbout: ['Backend engineering', 'Distributed systems', 'Databases', 'Cloud infrastructure', 'Core banking'],
-};
+const ogImage = new URL(url('og.png'), Astro.site).toString();
+const hasRss = (await getPosts()).length > 0;
 ---
 <!doctype html>
 <html lang="en">
@@ -35,24 +46,68 @@ const person = {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
-    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
-    <link rel="sitemap" href={`${base}sitemap-index.xml`} />
-    <meta name="theme-color" content="#8093bd" />
-    <meta name="color-scheme" content="light" />
-    <meta property="og:type" content="profile" />
+    <meta name="author" content={profile.name} />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/svg+xml" href={url('favicon.svg')} />
+    <link rel="sitemap" href={url('sitemap-index.xml')} />
+    <link rel="preload" href={geistLatin} as="font" type="font/woff2" crossorigin />
+    {hasRss && <link rel="alternate" type="application/rss+xml" title="Writing" href={url('writing/rss.xml')} />}
+    <slot name="head" />
+
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:type" content={type} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${profile.name}, ${profile.role}`} />
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
     <meta name="twitter:card" content="summary_large_image" />
-    <script type="application/ld+json" set:html={JSON.stringify(person)} />
-    <script is:inline>document.documentElement.classList.add('js');</script>
-    <slot name="head" />
+    {jsonLd.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data)} />)}
+
+    <!-- Theme before first paint: a saved choice wins, otherwise the system preference. -->
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add('js');
+        var t = null;
+        try {
+          t = localStorage.getItem('theme');
+        } catch (e) {}
+        if (t !== 'light' && t !== 'dark') t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        d.setAttribute('data-theme', t);
+      })();
+    </script>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
+    <Header home={home} />
     <slot />
+    <Footer />
+    {lightbox && <Lightbox />}
+    <script>
+      // Gentle entrance for blocks marked .reveal; everything shows at once with reduced motion.
+      const items = document.querySelectorAll<HTMLElement>('.reveal');
+      if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        items.forEach((el) => el.classList.add('in'));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add('in');
+                io.unobserve(e.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -6% 0px', threshold: 0.08 },
+        );
+        items.forEach((el) => io.observe(el));
+      }
+    </script>
   </body>
 </html>

@@ -1,133 +1,25 @@
-// Site content. Every fact comes from the CV ("Nguyen Gia Huy CV.pdf"); edit here to update the page.
-// The phone number is deliberately left off the public site.
+// Profile, experience, expertise and education.
+//
+// Source of truth: the CV ("Nguyen Gia Huy CV.pdf", October 2026 version). Nothing here goes beyond it.
+// Deliberate omissions, kept from earlier edits of this site:
+//   - The phone number is not published.
+//   - Galaxy FinX stays at the level of "Vault Core and smart contracts": no product-level details,
+//     no T24 and no internal figures.
+//   - DattingQ is not listed.
+// Project facts live in ./projects.ts and come from each project's own repository.
 
 export const profile = {
   name: 'Nguyen Gia Huy',
   role: 'Software Engineer',
+  focus: ['Backend engineering', 'Distributed systems', 'Databases', 'Infrastructure'],
   email: 'johnnynguyen882@gmail.com',
   github: 'https://github.com/Huy-8bit',
   linkedin: 'https://www.linkedin.com/in/huy8bit',
-  headline: ['Software Engineer', ''],
+  source: 'https://github.com/Huy-8bit/huy-8bit.github.io',
+  statement: 'I build backend systems, and tools that make complex systems easier to understand and troubleshoot.',
   intro:
-    'I work with backend services, distributed systems, databases, and cloud infrastructure, with experience building systems for banking and data platforms.',
+    'I work on backend services, distributed systems, databases and cloud infrastructure, currently in core banking. Outside work I build open-source tools for PostgreSQL observability and Redis caching.',
 };
-
-export type IconName =
-  | 'code'
-  | 'database'
-  | 'network'
-  | 'cloud'
-  | 'activity'
-  | 'bank'
-  | 'github'
-  | 'linkedin'
-  | 'mail'
-  | 'arrow-right'
-  | 'arrow-up-right'
-  | 'menu'
-  | 'close'
-  | 'cap'
-  | 'award'
-  | 'download';
-
-export const skills: { title: string; summary: string; icon: IconName; items: string[] }[] = [
-  {
-    title: 'Backend Engineering',
-    summary: 'Services and APIs, mostly in Go and Python.',
-    icon: 'code',
-    items: ['Go', 'Python', 'Java', 'REST', 'gRPC'],
-  },
-  {
-    title: 'Databases & Storage',
-    summary: 'Relational, document, cache and search stores.',
-    icon: 'database',
-    items: ['PostgreSQL', 'Redis', 'MongoDB', 'OpenSearch', 'ClickHouse'],
-  },
-  {
-    title: 'Distributed Systems',
-    summary: 'Messaging and event-driven services.',
-    icon: 'network',
-    items: ['Kafka', 'RabbitMQ', 'Event-driven architecture'],
-  },
-  {
-    title: 'Cloud & Infrastructure',
-    summary: 'Running workloads on AWS and private cloud.',
-    icon: 'cloud',
-    items: ['AWS', 'Kubernetes', 'Docker', 'Terraform', 'OpenStack'],
-  },
-  {
-    title: 'Observability',
-    summary: 'Metrics, traces and dashboards.',
-    icon: 'activity',
-    items: ['OpenTelemetry', 'Prometheus', 'Grafana'],
-  },
-  {
-    title: 'Core Banking',
-    summary: 'Smart contracts and products on Thought Machine Vault Core.',
-    icon: 'bank',
-    items: ['Vault Core', 'Smart contracts'],
-  },
-];
-
-export const featured = {
-  name: 'LockLens',
-  label: 'Open source',
-  summary: 'Open-source PostgreSQL monitoring and incident investigation.',
-  detail:
-    'Read-only collectors and a rule engine find blocking chains, long transactions and query regressions, and keep the evidence for each incident.',
-  stack: ['Go', 'React', 'TypeScript', 'PostgreSQL', 'TimescaleDB'],
-  website: 'https://huy-8bit.github.io/locklens-site/',
-  source: 'https://github.com/Huy-8bit/locklens',
-};
-
-export type ProjectLink = { label: string; href: string; kind: 'website' | 'source' | 'download' | 'reference' };
-
-export const projects: {
-  name: string;
-  label: string;
-  summary: string;
-  detail?: string;
-  stack: string[];
-  links?: ProjectLink[];
-}[] = [
-  {
-    name: 'KeyShift',
-    label: 'Open source · Redis caching',
-    summary: 'Adaptive, selective client-side caching for Redis in Go: detect hot keys, cache intelligently, scale efficiently.',
-    detail:
-      'A hot-key detector and an admission engine pick, per instance, the keys worth serving from local memory, with invalidation from Redis client tracking. Every other read goes straight to Redis. An optional controller ranks hot keys across the fleet and rolls out versioned policies.',
-    stack: ['Go', 'Redis', 'go-redis', 'rueidis', 'Prometheus', 'Grafana'],
-    links: [
-      { label: 'Visit website', href: 'https://huy-8bit.github.io/keyshift-site/', kind: 'website' },
-      { label: 'Source code', href: 'https://github.com/Huy-8bit/keyshift', kind: 'source' },
-      { label: 'Go reference', href: 'https://pkg.go.dev/github.com/Huy-8bit/keyshift/pkg/keyshift', kind: 'reference' },
-    ],
-  },
-  {
-    name: 'ExtendPad',
-    label: 'Mac + Android tablet',
-    summary: 'Turns an Android tablet into a real extended display for the Mac over USB-C.',
-    detail:
-      'A virtual macOS monitor is captured with ScreenCaptureKit, hardware-encoded with VideoToolbox and decoded on the tablet with MediaCodec. It runs over adb reverse with no Wi-Fi, with a locally drawn 120 Hz cursor.',
-    stack: ['Swift', 'SwiftUI', 'Kotlin', 'ScreenCaptureKit', 'VideoToolbox', 'MediaCodec'],
-    links: [
-      { label: 'Visit website', href: 'https://huy-8bit.github.io/extendpad-site/', kind: 'website' },
-      { label: 'Source code', href: 'https://github.com/Huy-8bit/ExtendPad', kind: 'source' },
-      { label: 'Download', href: 'https://huy-8bit.github.io/extendpad-site/#download', kind: 'download' },
-    ],
-    // TODO(images): project cards have no image slot yet. When real photos exist, add two images with
-    // these alt texts (no placeholders or generated screenshots):
-    //   - "ExtendPad extending a macOS desktop onto an Android tablet"
-    //   - "ExtendPad menu bar app on the Mac"
-  },
-  {
-    name: 'MeetQ',
-    label: 'Online meetings',
-    summary: 'A real-time meeting platform on LiveKit with live transcription, voice translation and meeting summaries using OpenAI models.',
-    stack: ['LiveKit', 'OpenAI', 'Real-time'],
-    links: [{ label: 'Source code', href: 'https://github.com/Huy-8bit/MeetQ', kind: 'source' }],
-  },
-];
 
 export type Role = {
   company: string;
@@ -135,8 +27,12 @@ export type Role = {
   title: string;
   start: string;
   end: string;
-  focus: string;
-  summary: string;
+  /** ISO dates for <time datetime>. */
+  startISO: string;
+  endISO?: string;
+  domain: string;
+  points: string[];
+  stack: string[];
 };
 
 export const experience: Role[] = [
@@ -146,9 +42,10 @@ export const experience: Role[] = [
     title: 'Software Engineer',
     start: 'Mar 2026',
     end: 'Present',
-    focus: 'Vault Core · Smart contracts',
-    summary:
-      'Develop smart contracts and banking products on Thought Machine Vault Core, along with the tooling to test and deploy them.',
+    startISO: '2026-03',
+    domain: 'Core banking on Thought Machine Vault Core',
+    points: ['Develop smart contracts and banking products on Thought Machine Vault Core.', 'Build the tooling used to test and deploy them.'],
+    stack: ['Vault Core', 'Smart contracts'],
   },
   {
     company: 'Vietlink',
@@ -156,37 +53,131 @@ export const experience: Role[] = [
     title: 'Software Engineer',
     start: 'Apr 2025',
     end: 'Mar 2026',
-    focus: 'AWS data pipelines · Data engineering',
-    summary:
-      'Built and operated ETL pipelines on AWS (Lambda, ECS, S3, Athena) for au でんき, an electric utility platform. Migrated search and analytics from Elasticsearch to OpenSearch and managed the infrastructure with Terraform.',
+    startISO: '2025-04',
+    endISO: '2026-03',
+    domain: 'Data pipelines for au でんき, an electric utility platform',
+    points: [
+      'Designed, built and operated ETL pipelines on AWS (Lambda, ECS, RDS, S3, Athena) that process utility data for analytics and operational workloads.',
+      'Redesigned batch workflows with parallel execution and more efficient data access, raising processing throughput by 150%.',
+      'Migrated search and analytics from Elasticsearch to OpenSearch, reworking how data is ingested and indexed.',
+      'Maintained the infrastructure with Terraform and AWS SAM, and monitored pipeline health and failures with CloudWatch and Datadog.',
+    ],
+    stack: ['AWS', 'OpenSearch', 'Terraform', 'AWS SAM', 'CloudWatch', 'Datadog'],
   },
   {
     company: 'VNPAY',
     title: 'Software Engineer',
     start: 'Jan 2024',
     end: 'Apr 2025',
-    focus: 'Kubernetes · Cloud infrastructure',
-    summary:
-      'Worked on VNPAY Cloud, a private cloud on OpenStack and Cluster API that runs production Kubernetes clusters. Implemented multi-tenant access control with Keycloak and operated Kong Gateway for the service ecosystem.',
+    startISO: '2024-01',
+    endISO: '2025-04',
+    domain: 'VNPAY Cloud, a private cloud platform for fintech and enterprise customers',
+    points: [
+      'Designed and operated the platform on OpenStack and Cluster API, with automated provisioning, scaling and zero-downtime upgrades for 50+ production Kubernetes clusters.',
+      'Implemented multi-tenant authentication and authorization with Keycloak and role-based access control, isolating 20+ customer organizations.',
+      'Integrated and operated Kong Gateway for 100+ microservices, with service-level and network-level access control.',
+      'Automated about 80% of data-center provisioning and infrastructure configuration.',
+    ],
+    stack: ['OpenStack', 'Cluster API', 'Kubernetes', 'Keycloak', 'Kong'],
   },
   {
     company: 'EsolLabs',
     title: 'Blockchain Developer',
     start: 'Jun 2023',
     end: 'Sep 2023',
-    focus: 'Smart contracts · Event-driven backend',
-    summary: 'Wrote Solidity and Move smart contracts, and event-driven services that sync on-chain events into off-chain databases and APIs.',
+    startISO: '2023-06',
+    endISO: '2023-09',
+    domain: 'A cross-chain NFT and token platform',
+    points: [
+      'Developed and reviewed 15+ smart contracts for DeFi and NFT use cases in Solidity and Move.',
+      'Built event-driven services that capture on-chain events and sync them into off-chain databases and APIs.',
+      'Integrated backend services with 5+ blockchain networks, including Ethereum, BSC, Polygon, Aptos and Sui.',
+    ],
+    stack: ['Solidity', 'Move', 'Event-driven services'],
   },
 ];
 
-export const education: { title: string; detail: string; icon: IconName }[] = [
-  { title: 'University of Science, Ho Chi Minh City', detail: 'B.Sc. Information Technology — Knowledge Engineering', icon: 'cap' },
-  { title: 'DevOps on AWS Specialization', detail: 'Coursera — Certificate', icon: 'award' },
+export type Expertise = {
+  area: string;
+  /** The kind of problems this covers, in one line. */
+  about: string;
+  tools: string[];
+  /** Where this has been used, only where the CV or a repository shows it. */
+  evidence: { label: string; href?: string }[];
+};
+
+export const expertise: Expertise[] = [
+  {
+    area: 'Languages and backend',
+    about: 'Services, APIs and command-line tools.',
+    tools: ['Go', 'Python', 'Java', 'gRPC', 'REST', 'Spring Boot', 'FastAPI'],
+    evidence: [
+      { label: 'LockLens (Go)', href: '#locklens' },
+      { label: 'KeyShift (Go)', href: '#keyshift' },
+    ],
+  },
+  {
+    area: 'Databases and caching',
+    about: 'Relational, document, search and cache stores, and how to observe them.',
+    tools: ['PostgreSQL', 'TimescaleDB', 'Redis', 'MongoDB', 'OpenSearch', 'Elasticsearch', 'ClickHouse'],
+    evidence: [
+      { label: 'LockLens (PostgreSQL)', href: '#locklens' },
+      { label: 'KeyShift (Redis)', href: '#keyshift' },
+      { label: 'OpenSearch migration at Vietlink', href: '#experience' },
+    ],
+  },
+  {
+    area: 'Distributed systems and messaging',
+    about: 'Event-driven services, queues, and coordination across many instances.',
+    tools: ['Kafka', 'RabbitMQ', 'Event-driven architecture'],
+    evidence: [
+      { label: 'On-chain event services at EsolLabs', href: '#experience' },
+      { label: 'KeyShift fleet controller', href: '#keyshift' },
+    ],
+  },
+  {
+    area: 'Cloud and infrastructure',
+    about: 'Private and public cloud, Kubernetes, and infrastructure as code.',
+    tools: ['AWS', 'Kubernetes', 'OpenStack', 'Docker', 'Terraform', 'Consul', 'Vault'],
+    evidence: [
+      { label: 'VNPAY Cloud', href: '#experience' },
+      { label: 'AWS data pipelines at Vietlink', href: '#experience' },
+    ],
+  },
+  {
+    area: 'Observability and reliability',
+    about: 'Metrics, traces, logs and dashboards, and acting on what they show.',
+    tools: ['OpenTelemetry', 'Prometheus', 'Grafana', 'ELK', 'CloudWatch', 'Datadog'],
+    evidence: [
+      { label: 'LockLens', href: '#locklens' },
+      { label: 'KeyShift dashboards', href: '#keyshift' },
+      { label: 'Pipeline monitoring at Vietlink', href: '#experience' },
+    ],
+  },
+  {
+    area: 'Core banking',
+    about: 'Banking products built as smart contracts on a core banking platform.',
+    tools: ['Thought Machine Vault Core', 'Smart contracts'],
+    evidence: [{ label: 'Galaxy FinX', href: '#experience' }],
+  },
+  {
+    area: 'Delivery',
+    about: 'Build, test and deployment pipelines.',
+    tools: ['Git', 'GitHub Actions', 'Jenkins', 'ArgoCD'],
+    evidence: [{ label: 'CI for LockLens and KeyShift', href: '#work' }],
+  },
 ];
 
+export const education: { title: string; detail: string; kind: 'Degree' | 'Certificate' }[] = [
+  { title: 'University of Science, Ho Chi Minh City', detail: 'B.Sc. Information Technology, Knowledge Engineering', kind: 'Degree' },
+  { title: 'DevOps on AWS Specialization', detail: 'Coursera', kind: 'Certificate' },
+];
+
+/** Section links. "Writing" is added by the header only when published articles exist. */
 export const nav = [
-  { href: '#skills', label: 'Skills' },
-  { href: '#projects', label: 'Projects' },
+  { href: '#work', label: 'Work' },
   { href: '#experience', label: 'Experience' },
+  { href: '#expertise', label: 'Expertise' },
+  { href: '#about', label: 'About' },
   { href: '#contact', label: 'Contact' },
 ];

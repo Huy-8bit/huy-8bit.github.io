@@ -1,0 +1,14 @@
+---
+import { Code } from 'astro:components';
+
+interface Props {
+  code: string;
+  lang: string;
+  title?: string;
+}
+const { code, lang, title } = Astro.props;
+---
+<div class="code-block">
+  {title && <div class="code-head"><span class="label">{title}</span></div>}
+  <Code code={code} lang={lang as any} themes={{ light: 'github-light', dark: 'github-dark-dimmed' }} defaultColor={false} />
+</div>

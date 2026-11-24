@@ -1,0 +1,35 @@
+---
+import Icon from './Icon.astro';
+import type { ProjectLink } from '../data/projects';
+import { url } from '../lib/url';
+
+interface Props {
+  links: ProjectLink[];
+  /** Leave out the case-study link (on the case-study page itself). */
+  skipCase?: boolean;
+  name: string;
+}
+const { links, skipCase = false, name } = Astro.props;
+const shown = links.filter((l) => !(skipCase && l.kind === 'case'));
+---
+<div class="feature-links">
+  {shown.map((l) => {
+    if (l.kind === 'case')
+      return (
+        <a class="btn btn-primary btn-sm" href={url(l.href)} aria-label={`${name} case study`}>
+          Case study <Icon name="arrow-right" size={16} class="i-arrow" />
+        </a>
+      );
+    if (l.kind === 'source')
+      return (
+        <a class="btn btn-secondary btn-sm" href={l.href} rel="noopener" aria-label={`${name} source code on GitHub`}>
+          <Icon name="github" size={16} /> {l.label}
+        </a>
+      );
+    return (
+      <a class="btn btn-secondary btn-sm" href={l.href} rel="noopener" aria-label={`${name} ${l.label.toLowerCase()}`}>
+        {l.label} <Icon name="arrow-up-right" size={15} />
+      </a>
+    );
+  })}
+</div>

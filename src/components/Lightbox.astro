@@ -1,0 +1,39 @@
+---
+// One shared <dialog> for enlarged screenshots. Opened by any [data-lightbox] button.
+import Icon from './Icon.astro';
+---
+<dialog class="lightbox" aria-labelledby="lb-cap" data-lb>
+  <img data-lb-img alt="" />
+  <div class="lightbox-bar">
+    <p id="lb-cap" data-lb-cap></p>
+    <button type="button" class="icon-btn" data-lb-close aria-label="Close"><Icon name="close" size={18} /></button>
+  </div>
+</dialog>
+
+<script>
+  const dlg = document.querySelector<HTMLDialogElement>('[data-lb]');
+  const img = dlg?.querySelector<HTMLImageElement>('[data-lb-img]');
+  const cap = dlg?.querySelector<HTMLElement>('[data-lb-cap]');
+  let opener: HTMLElement | null = null;
+
+  if (dlg && img && cap) {
+    document.addEventListener('click', (e) => {
+      const btn = (e.target as Element).closest<HTMLElement>('[data-lightbox]');
+      if (!btn) return;
+      img.src = btn.dataset.lightbox ?? '';
+      img.alt = btn.dataset.alt ?? '';
+      cap.textContent = btn.dataset.caption ?? '';
+      opener = btn;
+      dlg.showModal();
+    });
+    dlg.querySelector('[data-lb-close]')?.addEventListener('click', () => dlg.close());
+    // A click on the backdrop (the dialog element itself) closes it.
+    dlg.addEventListener('click', (e) => {
+      if (e.target === dlg) dlg.close();
+    });
+    dlg.addEventListener('close', () => {
+      opener?.focus();
+      opener = null;
+    });
+  }
+</script>

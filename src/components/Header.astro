@@ -2,58 +2,113 @@
 import Logo from './Logo.astro';
 import Icon from './Icon.astro';
 import { nav, profile } from '../data/cv';
+import { getPosts } from '../lib/writing';
+import { url } from '../lib/url';
 
 interface Props {
-  /** Prefix for section links, e.g. the home URL on pages other than the home page. */
-  linkBase?: string;
+  /** True on the home page: section links stay on the page. */
+  home?: boolean;
 }
-const { linkBase = '' } = Astro.props;
-const home = import.meta.env.BASE_URL;
+const { home = false } = Astro.props;
+const prefix = home ? '' : url();
+const hasWriting = (await getPosts()).length > 0;
+const links = nav.map((l) => ({ ...l, href: `${prefix}${l.href}`, id: l.href.slice(1) }));
+if (hasWriting) links.splice(links.length - 1, 0, { href: url('writing/'), label: 'Writing', id: '' });
 ---
 <header class="site-header" data-header>
   <div class="container header-inner">
-    <a href={home} class="logo" aria-label={`${profile.name} — home`}>
-      <Logo size={40} />
+    <a class="brand" href={url()} aria-label={`${profile.name}, home`}>
+      <Logo size={26} class="brand-mark" />
+      <span>{profile.name}</span>
     </a>
 
-    <nav class="nav" aria-label="Sections">
+    <nav class="nav" aria-label="Main">
       <ul>
-        {nav.map((l) => (
-          <li><a href={`${linkBase}${l.href}`} data-nav={l.href.slice(1)}>{l.label}</a></li>
-        ))}
+        {links.map((l) => <li><a href={l.href} data-spy={home ? l.id : undefined}>{l.label}</a></li>)}
       </ul>
     </nav>
 
-    <button type="button" class="menu-button" aria-expanded="false" aria-controls="mobile-menu" data-menu-button>
-      <span class="sr-only">Menu</span>
-      <Icon name="menu" size={22} class="i-open" />
-      <Icon name="close" size={22} class="i-close" />
-    </button>
+    <div class="header-tools">
+      <span class="header-sep" aria-hidden="true"></span>
+      <a class="icon-btn header-social" href={profile.github} rel="me noopener" aria-label="GitHub profile"><Icon name="github" size={18} /></a>
+      <a class="icon-btn header-social" href={profile.linkedin} rel="me noopener" aria-label="LinkedIn profile"><Icon name="linkedin" size={17} /></a>
+      <button type="button" class="icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme">
+        <Icon name="sun" size={18} class="i-sun" />
+        <Icon name="moon" size={17} class="i-moon" />
+      </button>
+      <button type="button" class="icon-btn menu-btn" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menu" data-menu-btn>
+        <Icon name="menu" size={20} class="i-open" />
+        <Icon name="close" size={20} class="i-close" />
+      </button>
+    </div>
   </div>
 
   <div id="mobile-menu" class="mobile-menu" hidden data-menu>
-    <ul class="container">
-      {nav.map((l) => (
-        <li><a href={`${linkBase}${l.href}`}>{l.label}<Icon name="arrow-right" size={18} /></a></li>
-      ))}
-    </ul>
+    <nav class="container" aria-label="Main (mobile)">
+      <ul>
+        {links.map((l) => <li><a href={l.href}>{l.label}<Icon name="arrow-right" size={18} /></a></li>)}
+      </ul>
+      <div class="mobile-social">
+        <a class="btn btn-secondary btn-sm" href={profile.github} rel="me noopener"><Icon name="github" size={16} /> GitHub</a>
+        <a class="btn btn-secondary btn-sm" href={profile.linkedin} rel="me noopener"><Icon name="linkedin" size={15} /> LinkedIn</a>
+      </div>
+    </nav>
   </div>
 </header>
 
 <script>
+  const root = document.documentElement;
   const header = document.querySelector<HTMLElement>('[data-header]');
-  const button = document.querySelector<HTMLButtonElement>('[data-menu-button]');
-  const menu = document.querySelector<HTMLElement>('[data-menu]');
 
+  // Border under the header once the page scrolls.
   if (header) {
-    const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 24);
+    const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
   }
 
+  // Theme: the inline script in <head> sets data-theme before paint; this keeps it in sync.
+  const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  const dark = window.matchMedia('(prefers-color-scheme: dark)');
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const stored = () => {
+    try {
+      return localStorage.getItem('theme');
+    } catch {
+      return null;
+    }
+  };
+  const label = () =>
+    toggle?.setAttribute('aria-label', root.dataset.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+  const apply = (theme: string) => {
+    if (!still.matches) {
+      root.classList.add('theme-fade');
+      window.setTimeout(() => root.classList.remove('theme-fade'), 300);
+    }
+    root.dataset.theme = theme;
+    label();
+  };
+  label();
+  toggle?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      /* storage unavailable: the choice lasts for this page only */
+    }
+    apply(next);
+  });
+  dark.addEventListener('change', (e) => {
+    if (!stored()) apply(e.matches ? 'dark' : 'light');
+  });
+
+  // Mobile menu.
+  const button = document.querySelector<HTMLButtonElement>('[data-menu-btn]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
   const setOpen = (open: boolean) => {
     if (!button || !menu || !header) return;
     button.setAttribute('aria-expanded', String(open));
+    button.setAttribute('aria-label', open ? 'Close menu' : 'Menu');
     menu.hidden = !open;
     header.classList.toggle('menu-open', open);
   };
@@ -65,23 +120,21 @@ const home = import.meta.env.BASE_URL;
       button.focus();
     }
   });
-  window.matchMedia('(min-width: 860px)').addEventListener('change', (m) => m.matches && setOpen(false));
+  window.matchMedia('(min-width: 961px)').addEventListener('change', (m) => m.matches && setOpen(false));
 
-  // Highlight the section currently in view.
-  const links = new Map<string, HTMLAnchorElement>();
-  document.querySelectorAll<HTMLAnchorElement>('[data-nav]').forEach((a) => links.set(a.dataset.nav ?? '', a));
-  const sections = [...links.keys()].map((id) => document.getElementById(id)).filter((s): s is HTMLElement => !!s);
+  // Highlight the section in view (home page only).
+  const spy = new Map<string, HTMLAnchorElement>();
+  document.querySelectorAll<HTMLAnchorElement>('[data-spy]').forEach((a) => a.dataset.spy && spy.set(a.dataset.spy, a));
+  const sections = [...spy.keys()].map((id) => document.getElementById(id)).filter((s): s is HTMLElement => !!s);
   if (sections.length && 'IntersectionObserver' in window) {
-    const visible = new Map<string, number>();
     const io = new IntersectionObserver(
       (entries) => {
-        for (const e of entries) visible.set(e.target.id, e.isIntersecting ? e.intersectionRatio : 0);
-        let best = '';
-        let max = 0;
-        for (const [id, r] of visible) if (r > max) [best, max] = [id, r];
-        links.forEach((a, id) => (id === best ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')));
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          spy.forEach((a, id) => (id === e.target.id ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')));
+        }
       },
-      { rootMargin: '-35% 0px -45% 0px', threshold: [0, 0.01, 0.25, 0.5, 0.75, 1] },
+      { rootMargin: '-40% 0px -55% 0px' },
     );
     sections.forEach((s) => io.observe(s));
   }

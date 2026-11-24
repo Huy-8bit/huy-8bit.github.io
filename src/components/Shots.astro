@@ -1,0 +1,47 @@
+---
+// Real screenshots, each a button that opens the full-size image in the lightbox.
+import { Picture, getImage } from 'astro:assets';
+import Icon from './Icon.astro';
+import type { Shot } from '../data/projects';
+
+interface Props {
+  shots: Shot[];
+  /** `sizes` for the first image and for the rest. */
+  sizes?: [string, string];
+  class?: string;
+}
+const {
+  shots,
+  sizes = ['(min-width: 1080px) 680px, 92vw', '(min-width: 1080px) 340px, (min-width: 640px) 46vw, 92vw'],
+  class: cls,
+} = Astro.props;
+const full = await Promise.all(shots.map((s) => getImage({ src: s.image, width: 1440, format: 'webp' })));
+---
+<div class:list={['shots', cls]}>
+  {shots.map((s, i) => (
+    <figure class="shot">
+      <button
+        type="button"
+        class="shot-btn"
+        data-lightbox={full[i].src}
+        data-alt={s.alt}
+        data-caption={s.caption}
+        aria-haspopup="dialog"
+        aria-label={`Enlarge screenshot: ${s.alt}`}
+      >
+        <Picture
+          src={s.image}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[480, 720, 1080, 1440]}
+          sizes={i === 0 ? sizes[0] : sizes[1]}
+          alt={s.alt}
+          loading="lazy"
+          decoding="async"
+        />
+        <span class="shot-zoom" aria-hidden="true"><Icon name="expand" size={15} /></span>
+      </button>
+      <figcaption class="label">{s.caption}</figcaption>
+    </figure>
+  ))}
+</div>

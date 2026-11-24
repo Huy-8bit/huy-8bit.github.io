@@ -1,0 +1,41 @@
+---
+// /writing/ — generated only when at least one published article exists.
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import { getPosts, formatDate } from '../../lib/writing';
+import { url } from '../../lib/url';
+import { profile } from '../../data/cv';
+
+export const getStaticPaths = (async () => ((await getPosts()).length ? [{ params: { index: undefined } }] : [])) satisfies GetStaticPaths;
+
+const posts = await getPosts();
+---
+<Base title={`Writing · ${profile.name}`} description={`Technical articles by ${profile.name} on backend systems, databases and infrastructure.`}>
+  <main id="main">
+    <header class="cs-hero">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container" style="position:relative">
+        <a class="back" href={url()}><Icon name="arrow-left" size={15} /> Home</a>
+        <h1>Writing</h1>
+        <p class="cs-intro">
+          Technical articles on backend systems, databases and infrastructure.
+          <a class="link" href={url('writing/rss.xml')}>RSS feed</a>
+        </p>
+      </div>
+    </header>
+    <div class="container" style="padding-bottom: var(--section-pad)">
+      <ul class="posts">
+        {posts.map((p) => (
+          <li class="post-row">
+            <a href={url(`writing/${p.id}/`)}>
+              <time class="label" datetime={p.data.published.toISOString()}>{formatDate(p.data.published)}</time>
+              <h2 style="grid-column: span 9; font-size: var(--fs-lg)">{p.data.title}</h2>
+              <p>{p.data.description}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </main>
+</Base>
