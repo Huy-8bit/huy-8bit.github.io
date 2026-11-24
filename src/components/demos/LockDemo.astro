@@ -17,18 +17,18 @@ const edges = [
   { from: 1, to: 3, at: 2 },
 ];
 const steps = [
-  { t: 't+0 s', text: 'pid 116 updates a row, then sits idle inside its open transaction. It keeps the row lock.' },
-  { t: 't+2 s', text: 'pid 117 tries to update the same row and starts waiting for the lock.' },
-  { t: 't+5 s', text: 'pid 118 queues behind 117, and pid 119 waits on 116 as well.' },
-  { t: 't+9 s', text: 'The blocking tree resolves to one root: pid 116 blocks 2 sessions directly, 3 in total.' },
-  { t: 't+10 s', text: 'An incident is recorded with the statement, the sessions involved and this timeline.' },
+  { t: 't+0 s', text: 'pid 116 updates a row, then goes idle with its transaction open, holding the row lock.' },
+  { t: 't+2 s', text: 'pid 117 tries to update the same row and waits for the lock.' },
+  { t: 't+5 s', text: 'pid 118 waits behind 117, while pid 119 also waits on 116.' },
+  { t: 't+9 s', text: 'The tree points to pid 116 as the root blocker: 2 sessions blocked directly, 3 in total.' },
+  { t: 't+10 s', text: 'LockLens records the incident with its statement, sessions and timeline.' },
 ];
 const mid = (i: number) => ({ x: nodes[i].x + W, y: nodes[i].y + H / 2 });
 const inn = (i: number) => ({ x: nodes[i].x, y: nodes[i].y + H / 2 });
 ---
 <div class="demo ld lit" data-lockdemo data-anim>
   <div class="demo-head">
-    <p class="demo-title"><span class="label">Interactive</span> How LockLens reads a blocking chain</p>
+    <p class="demo-title"><span class="label">Interactive</span> Following a blocking chain</p>
     <span class="demo-badge">Illustrative</span>
   </div>
   <div class="ld-body">

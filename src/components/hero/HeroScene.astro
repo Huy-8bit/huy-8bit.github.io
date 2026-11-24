@@ -32,13 +32,13 @@ const packets = [
   { e: 'e8', tone: 'worker', dur: 3.6, begin: 3.8 },
 ];
 const spots = [
-  { id: 'instances', x: 142, y: 176, title: 'Application instances', text: 'Copies of the same service. Each can keep its own hot data in memory, which is the idea behind KeyShift.' },
-  { id: 'service', x: 352, y: 246, title: 'A backend service', text: 'Takes requests, reads and writes data, and hands slow work to a queue.' },
-  { id: 'redis', x: 550, y: 146, title: 'Cache', text: 'Fast in-memory reads for hot keys. KeyShift decides which keys are worth caching in each instance.' },
-  { id: 'postgres', x: 560, y: 368, title: 'Database', text: 'The system of record. When it slows down or locks up, LockLens shows who is blocking whom.' },
-  { id: 'queue', x: 344, y: 452, title: 'Queue', text: 'Work handed off asynchronously, so a request doesn’t wait for it.' },
-  { id: 'worker', x: 178, y: 450, title: 'Worker', text: 'Consumes the queue and writes results back to the database.' },
-  { id: 'trace', x: 240, y: 22, title: 'Trace', text: 'One request broken into spans: where the time actually went.' },
+  { id: 'instances', x: 142, y: 176, title: 'Application instances', text: 'Each copy of a service can cache different keys locally. That’s the idea behind KeyShift.' },
+  { id: 'service', x: 352, y: 246, title: 'Backend service', text: 'Handles requests, works with data and sends background jobs to a queue.' },
+  { id: 'redis', x: 550, y: 146, title: 'Cache', text: 'Keeps frequently read data close to the application. KeyShift chooses keys for each instance.' },
+  { id: 'postgres', x: 560, y: 368, title: 'Database', text: 'Stores application data. LockLens helps investigate slowdowns and blocking in PostgreSQL.' },
+  { id: 'queue', x: 344, y: 452, title: 'Queue', text: 'Holds work that can be handled asynchronously.' },
+  { id: 'worker', x: 178, y: 450, title: 'Worker', text: 'Picks up queued work and writes the results to the database.' },
+  { id: 'trace', x: 240, y: 22, title: 'Trace', text: 'Shows the spans of a request and where it spent time.' },
 ];
 const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
 ---

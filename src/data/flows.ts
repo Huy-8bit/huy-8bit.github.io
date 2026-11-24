@@ -7,22 +7,22 @@ export type Flow = { id: string; title: string; lanes: Lane[]; legend?: { accent
 
 export const keyshiftFlow: Flow = {
   id: 'keyshift',
-  title: 'How a read moves through KeyShift',
+  title: 'A read through KeyShift',
   lanes: [
     {
       label: 'Admitted key',
       nodes: [
-        { title: 'Your code', sub: 'calls client.Get(ctx, key)' },
-        { title: 'KeyShift SDK', sub: 'key is in the admitted set', accent: true },
-        { title: 'Local cache', sub: 'value from process memory; a miss fills from Redis' },
+        { title: 'Application', sub: 'calls client.Get(ctx, key)' },
+        { title: 'KeyShift SDK', sub: 'key is admitted to the cache', accent: true },
+        { title: 'Local cache', sub: 'serve from memory or fill from Redis on a miss' },
       ],
     },
     {
       label: 'Any other key',
       nodes: [
-        { title: 'Your code', sub: 'calls client.Get(ctx, key)' },
-        { title: 'KeyShift SDK', sub: 'not admitted; the detector counts the read', accent: true },
-        { title: 'Redis', sub: 'a normal GET, as before' },
+        { title: 'Application', sub: 'calls client.Get(ctx, key)' },
+        { title: 'KeyShift SDK', sub: 'key is not admitted; count the read', accent: true },
+        { title: 'Redis', sub: 'serve the GET directly' },
       ],
     },
     {
@@ -31,7 +31,7 @@ export const keyshiftFlow: Flow = {
       nodes: [
         { title: 'Another writer', sub: 'SET, DEL or expiry' },
         { title: 'Redis client tracking', sub: 'tracks admitted keys only' },
-        { title: 'Local copy dropped', sub: 'next read fetches the new value' },
+        { title: 'Local copy removed', sub: 'fetch the new value on the next read' },
       ],
     },
     {
@@ -40,7 +40,7 @@ export const keyshiftFlow: Flow = {
       nodes: [
         { title: 'Read and write rates', sub: 'from the detector' },
         { title: 'Admission', sub: 'hit ratio, value size, memory budget', accent: true },
-        { title: 'Admitted set', sub: 'admit, keep, or cool down' },
+        { title: 'Admitted set', sub: 'admit, keep or cool down a key' },
       ],
     },
     {
@@ -48,7 +48,7 @@ export const keyshiftFlow: Flow = {
       note: 'optional',
       tone: 'quiet',
       nodes: [
-        { title: 'Telemetry', sub: 'about every 30 s, keys as HMAC fingerprints', dashed: true },
+        { title: 'Telemetry', sub: 'sent roughly every 30 s; keys use HMAC fingerprints', dashed: true },
         { title: 'Controller', sub: 'ranks hot keys across instances', dashed: true },
         { title: 'Policies', sub: 'can only tighten local limits', dashed: true },
       ],
@@ -59,7 +59,7 @@ export const keyshiftFlow: Flow = {
 
 export const locklensFlow: Flow = {
   id: 'locklens',
-  title: 'How LockLens collects, explains and serves',
+  title: 'How data moves through LockLens',
   lanes: [
     {
       label: 'Collect',
@@ -73,7 +73,7 @@ export const locklensFlow: Flow = {
       label: 'Explain',
       nodes: [
         { title: 'In-memory state', sub: 'latest values and recent history' },
-        { title: 'Rules + incident recorder', sub: '18 evidence-based rules', accent: true },
+        { title: 'Rules + incident recorder', sub: 'evaluate 18 evidence-based rules', accent: true },
         { title: 'Incidents and alerts', sub: 'evidence, timeline, notifications' },
       ],
     },
@@ -81,7 +81,7 @@ export const locklensFlow: Flow = {
       label: 'Serve',
       nodes: [
         { title: 'Live state + store', sub: 'live values and history' },
-        { title: 'REST API + SSE', sub: 'events tell the UI what changed', accent: true },
+        { title: 'REST API + SSE', sub: 'events notify the UI of changes', accent: true },
         { title: 'Web UI', sub: 'React, served by nginx' },
       ],
     },
@@ -90,7 +90,7 @@ export const locklensFlow: Flow = {
       tone: 'quiet',
       nodes: [
         { title: 'One database', sub: 'no server needed', dashed: true },
-        { title: 'Same collectors', sub: 'same blocking graph and report', dashed: true },
+        { title: 'Shared collectors', sub: 'build the blocking graph and report', dashed: true },
         { title: 'Terminal report', sub: 'doctor, inspect, watch, snapshot', dashed: true },
       ],
     },
@@ -100,21 +100,21 @@ export const locklensFlow: Flow = {
 
 export const extendpadFlow: Flow = {
   id: 'extendpad',
-  title: 'How a frame gets from the Mac to the tablet',
+  title: 'From Mac to tablet',
   lanes: [
     {
       label: 'On the Mac',
       nodes: [
-        { title: 'Virtual display', sub: 'CGVirtualDisplay, a real monitor to macOS', accent: true },
-        { title: 'Capture', sub: 'ScreenCaptureKit, only when something changes' },
-        { title: 'Encode', sub: 'VideoToolbox H.264, in hardware' },
+        { title: 'Virtual display', sub: 'CGVirtualDisplay creates a monitor in macOS', accent: true },
+        { title: 'Capture', sub: 'ScreenCaptureKit captures changes' },
+        { title: 'Encode', sub: 'hardware H.264 encoding with VideoToolbox' },
       ],
     },
     {
       label: 'Over USB-C',
       nodes: [
         { title: 'Loopback server', sub: 'listens on 127.0.0.1 only' },
-        { title: 'adb reverse', sub: 'carries the socket over the cable', accent: true },
+        { title: 'adb reverse', sub: 'sends the connection over USB', accent: true },
         { title: 'Paired session', sub: 'HMAC-SHA256 with a token sent over ADB' },
       ],
     },
@@ -122,8 +122,8 @@ export const extendpadFlow: Flow = {
       label: 'On the tablet',
       nodes: [
         { title: 'Receive', sub: 'control and video sockets' },
-        { title: 'Decode', sub: 'MediaCodec, in hardware', accent: true },
-        { title: 'Show', sub: 'letterboxed, never stretched' },
+        { title: 'Decode', sub: 'hardware decoding with MediaCodec', accent: true },
+        { title: 'Display', sub: 'letterboxed to preserve proportions' },
       ],
     },
     {
@@ -132,7 +132,7 @@ export const extendpadFlow: Flow = {
       nodes: [
         { title: 'Cursor position', sub: 'read on the Mac' },
         { title: 'Control channel', sub: '120 Hz, separate from video' },
-        { title: 'Drawn by the tablet', sub: 'never waits for a frame' },
+        { title: 'Tablet cursor', sub: 'drawn independently of video frames' },
       ],
     },
   ],
