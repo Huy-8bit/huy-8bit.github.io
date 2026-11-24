@@ -752,9 +752,9 @@ img {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-/* A single project spans the row, with its link beside the text. */
-.project-grid:has(> :only-child) {
-  grid-template-columns: 1fr;
+/* A project left alone on the last row spans it, with its links beside the text. */
+.project-grid > .project-card:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
 }
 .project-card {
   display: flex;
@@ -770,16 +770,16 @@ img {
   gap: 10px;
 }
 @media (min-width: 768px) {
-  .project-grid > .project-card:only-child {
+  .project-grid > .project-card:last-child:nth-child(odd) {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     gap: 40px;
   }
-  .project-grid > .project-card:only-child .project-body {
+  .project-grid > .project-card:last-child:nth-child(odd) .project-body {
     max-width: 640px;
   }
-  .project-grid > .project-card:only-child .project-links {
+  .project-grid > .project-card:last-child:nth-child(odd) .project-links {
     align-self: center;
   }
 }

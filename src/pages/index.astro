@@ -81,7 +81,7 @@ import incident from '../assets/locklens-incident.png';
                       {l.kind === 'source' && <Icon name="github" size={18} />}
                       {l.kind === 'download' && <Icon name="download" size={18} />}
                       {l.label}
-                      {l.kind === 'website' && <Icon name="arrow-up-right" size={18} />}
+                      {(l.kind === 'website' || l.kind === 'reference') && <Icon name="arrow-up-right" size={18} />}
                     </a>
                   ))}
                 </div>
@@ -140,7 +140,7 @@ import incident from '../assets/locklens-incident.png';
         <div class="reveal">
           <p class="kicker kicker-on-hero">Contact</p>
           <h2 id="contact-title" class="contact-title">Let’s get in touch.</h2>
-          <p class="contact-text">I’m happy to talk about backend systems, infrastructure, LockLens or ExtendPad. Email is the best way to reach me.</p>
+          <p class="contact-text">I’m happy to talk about backend systems, infrastructure, LockLens, KeyShift or ExtendPad. Email is the best way to reach me.</p>
         </div>
         <div class="contact-actions reveal" style="--d:80ms">
           <a class="btn btn-light btn-lg" href={`mailto:${profile.email}`}><Icon name="mail" size={20} /> {profile.email}</a>

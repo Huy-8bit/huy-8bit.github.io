@@ -28,8 +28,7 @@ export type IconName =
   | 'close'
   | 'cap'
   | 'award'
-  | 'download'
-  | 'devices';
+  | 'download';
 
 export const skills: { title: string; summary: string; icon: IconName; items: string[] }[] = [
   {
@@ -68,12 +67,6 @@ export const skills: { title: string; summary: string; icon: IconName; items: st
     icon: 'bank',
     items: ['Vault Core', 'Smart contracts'],
   },
-  {
-    title: 'Apple & Android',
-    summary: 'Native Mac and Android apps with hardware video.',
-    icon: 'devices',
-    items: ['Swift', 'SwiftUI', 'Kotlin', 'VideoToolbox / MediaCodec'],
-  },
 ];
 
 export const featured = {
@@ -87,7 +80,7 @@ export const featured = {
   source: 'https://github.com/Huy-8bit/locklens',
 };
 
-export type ProjectLink = { label: string; href: string; kind: 'website' | 'source' | 'download' };
+export type ProjectLink = { label: string; href: string; kind: 'website' | 'source' | 'download' | 'reference' };
 
 export const projects: {
   name: string;
@@ -97,6 +90,19 @@ export const projects: {
   stack: string[];
   links?: ProjectLink[];
 }[] = [
+  {
+    name: 'KeyShift',
+    label: 'Open source · Redis caching',
+    summary: 'Adaptive, selective client-side caching for Redis in Go: detect hot keys, cache intelligently, scale efficiently.',
+    detail:
+      'A hot-key detector and an admission engine pick, per instance, the keys worth serving from local memory, with invalidation from Redis client tracking. Every other read goes straight to Redis. An optional controller ranks hot keys across the fleet and rolls out versioned policies.',
+    stack: ['Go', 'Redis', 'go-redis', 'rueidis', 'Prometheus', 'Grafana'],
+    links: [
+      { label: 'Visit website', href: 'https://huy-8bit.github.io/keyshift-site/', kind: 'website' },
+      { label: 'Source code', href: 'https://github.com/Huy-8bit/keyshift', kind: 'source' },
+      { label: 'Go reference', href: 'https://pkg.go.dev/github.com/Huy-8bit/keyshift/pkg/keyshift', kind: 'reference' },
+    ],
+  },
   {
     name: 'ExtendPad',
     label: 'Mac + Android tablet',
