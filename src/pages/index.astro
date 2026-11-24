@@ -90,8 +90,8 @@ const jsonLd = [
             id="work-title"
             num={num('work')}
             label="Selected work"
-            title="Three projects, three kinds of systems."
-            lead="Personal projects, built in the open: a PostgreSQL investigation tool, a Redis caching SDK and a display pipeline. Each starts from a concrete engineering problem and comes with documentation, tests and its own site."
+            title="Projects I've built."
+            lead="A few personal projects I've built in the open, from investigating PostgreSQL incidents to caching Redis reads and extending a Mac display."
           />
           <ol class="work-index stagger" aria-label="Projects on this page">
             {[locklens, keyshift, extendpad].map((p, i) => (
@@ -155,7 +155,7 @@ const jsonLd = [
               <p class="bench-card-head"><span class="label">Measured</span><span class="demo-badge demo-badge-real">Benchmark suite</span></p>
               <div class="range">
                 <p class="range-value"><span data-count="50">50</span>–<span data-count="86">86</span>%</p>
-                <p class="range-label">fewer GETs reaching Redis, on workloads with locality</p>
+                <p class="range-label">fewer GETs reaching Redis in workloads with locality</p>
                 <div class="range-track" aria-hidden="true"><span class="range-fill" style="--from:50%;--to:86%"></span></div>
                 <div class="range-scale label" aria-hidden="true"><span>0%</span><span>50%</span><span>86%</span><span>100%</span></div>
               </div>
@@ -226,8 +226,8 @@ const jsonLd = [
           id="experience-title"
           num={num('experience')}
           label="Experience"
-          title="From blockchain backends to core banking."
-          lead="Backend, platform and data engineering roles, newest first: core banking, AWS data pipelines, a private Kubernetes cloud, and event-driven blockchain services."
+          title="Where I've worked."
+          lead="My experience across core banking, data pipelines, cloud infrastructure and blockchain services."
         />
         <ol class="tl">
           {experience.map((r) => (
@@ -269,8 +269,8 @@ const jsonLd = [
           id="expertise-title"
           num={num('expertise')}
           label="Expertise"
-          title="An engineering map, with sources."
-          lead="Grouped by the kind of problem. Each domain names the tools and points to where I have used them, at work or in my own projects."
+          title="What I work with."
+          lead="The technologies I use and where I've applied them, at work and in personal projects."
         />
         <Expertise />
       </div>
@@ -279,41 +279,40 @@ const jsonLd = [
     <!-- About -->
     <section class="section" id="about" aria-labelledby="about-title" data-zone="quiet">
       <div class="container">
-        <SectionHeader id="about-title" num={num('about')} label="About" title="Backend systems, and the tools around them." />
+        <SectionHeader id="about-title" num={num('about')} label="About" title="A little about me." />
         <div class="grid-12 about-grid">
           <div class="about-copy reveal">
             <p class="about-first">
-              I’m a software engineer who works mostly on the server side: services and APIs, the data stores behind them, and the
-              infrastructure they run on.
+              I’m a software engineer focused on backend systems: the services and APIs, databases and infrastructure that keep
+              applications running.
             </p>
             <p>
-              My roles have taken me from blockchain backends at EsolLabs, to a private Kubernetes cloud at VNPAY, to AWS data pipelines for
-              au でんき at Vietlink. Since March 2026 I’ve been at Galaxy FinX, working on core banking for Vikki Digital Bank.
+              I’ve worked on blockchain services at EsolLabs, a private Kubernetes cloud at VNPAY, and AWS data pipelines for
+              au でんき at Vietlink. I’m now at Galaxy FinX, working on core banking for Vikki Digital Bank.
             </p>
             <p>
-              Outside work I build open-source tools. LockLens shows what a PostgreSQL database is doing when it slows down or locks up.
-              KeyShift decides, inside each application instance, which Redis keys are worth caching. ExtendPad is a smaller systems
-              project that turns an Android tablet into a Mac display.
+              Outside work, I enjoy building tools to explore problems that interest me. LockLens helps investigate PostgreSQL slowdowns
+              and blocking; KeyShift selects Redis keys to cache locally; and ExtendPad turns an Android tablet into a second display for a Mac.
             </p>
           </div>
           <div class="about-side reveal" style="--d:100ms">
-            <h3 class="label">What my projects have in common</h3>
+            <h3 class="label">How I approach projects</h3>
             <ol class="patterns">
               <li>
-                <h4>Read-only where it matters</h4>
-                <p>LockLens connects with a read-only role and never changes the databases it watches. ExtendPad’s Mac app listens only on 127.0.0.1.</p>
+                <h4>Keep access limited</h4>
+                <p>LockLens uses a read-only role and doesn’t change the databases it monitors. ExtendPad’s Mac app listens only on 127.0.0.1.</p>
               </li>
               <li>
-                <h4>Bounded everywhere</h4>
-                <p>LockLens drops the oldest batch, and records the gap, when its store falls behind. ExtendPad keeps a single frame slot before the encoder. KeyShift’s detector uses fixed memory.</p>
+                <h4>Put limits on resource use</h4>
+                <p>When its store falls behind, LockLens drops the oldest batch and records the gap. ExtendPad keeps one frame slot before encoding, and KeyShift’s detector uses fixed memory.</p>
               </li>
               <li>
-                <h4>Decisions you can inspect</h4>
-                <p>LockLens incidents carry their evidence and rank hypotheses without calling them causes. In KeyShift, <code>Explain(key)</code> gives the reason behind every caching decision.</p>
+                <h4>Make decisions understandable</h4>
+                <p>LockLens keeps the evidence behind each incident and distinguishes hypotheses from confirmed causes. KeyShift’s <code>Explain(key)</code> shows why a key is in its current state.</p>
               </li>
               <li>
-                <h4>Limits written down</h4>
-                <p>Each project documents what it doesn’t do yet, and benchmark figures come with the machine and method they were measured on.</p>
+                <h4>Be clear about limitations</h4>
+                <p>I document what each project doesn’t do yet and include the machine and method behind benchmark results.</p>
               </li>
             </ol>
           </div>
@@ -364,7 +363,7 @@ const jsonLd = [
         <p class="sh-label label"><span class="sh-num">{num('contact')}</span>Contact</p>
         <h2 id="contact-title"><span class="grad-text is-live">Get in touch.</span></h2>
         <p class="contact-text">
-          Email is the best way to reach me, whether it’s about backend systems, databases, or one of the projects above.
+          If you’d like to talk about backend systems, databases or any of my projects, feel free to email me.
         </p>
         <div class="contact-actions">
           <a class="btn btn-primary btn-lg contact-email" href={`mailto:${profile.email}`}><Icon name="mail" size={18} /> {profile.email}</a>

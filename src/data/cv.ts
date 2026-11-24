@@ -16,9 +16,9 @@ export const profile = {
   github: 'https://github.com/Huy-8bit',
   linkedin: 'https://www.linkedin.com/in/huy8bit',
   source: 'https://github.com/Huy-8bit/huy-8bit.github.io',
-  statement: 'I build backend systems, and tools that make complex systems easier to understand and troubleshoot.',
+  statement: 'I build backend systems and tools that make them easier to understand and troubleshoot.',
   intro:
-    'I work on backend services, distributed systems, databases and cloud infrastructure, currently in core banking. Outside work I build open-source tools for PostgreSQL observability and Redis caching.',
+    'My work spans backend services, databases and cloud infrastructure. I currently work in core banking, and in my spare time I build open-source tools for PostgreSQL and Redis.',
 };
 
 export type Role = {
@@ -46,7 +46,7 @@ export const experience: Role[] = [
     end: 'Present',
     startISO: '2026-03',
     domain: 'Core banking on Thought Machine Vault Core',
-    points: ['Develop smart contracts and banking products on Thought Machine Vault Core.', 'Build the tooling used to test and deploy them.'],
+    points: ['Develop banking products and smart contracts on Thought Machine Vault Core.', 'Build tools to test and deploy them.'],
     stack: ['Vault Core', 'Smart contracts'],
   },
   {
@@ -59,10 +59,10 @@ export const experience: Role[] = [
     endISO: '2026-03',
     domain: 'Data pipelines for au でんき, an electric utility platform',
     points: [
-      'Designed, built and operated ETL pipelines on AWS (Lambda, ECS, RDS, S3, Athena) that process utility data for analytics and operational workloads.',
-      'Redesigned batch workflows with parallel execution and more efficient data access, raising processing throughput by 150%.',
-      'Migrated search and analytics from Elasticsearch to OpenSearch, reworking how data is ingested and indexed.',
-      'Maintained the infrastructure with Terraform and AWS SAM, and monitored pipeline health and failures with CloudWatch and Datadog.',
+      'Built and operated AWS ETL pipelines using Lambda, ECS, RDS, S3 and Athena to process utility data for analytics and operations.',
+      'Redesigned batch workflows with parallel execution and more efficient data access, increasing throughput by 150%.',
+      'Migrated search and analytics from Elasticsearch to OpenSearch, including changes to data ingestion and indexing.',
+      'Managed infrastructure with Terraform and AWS SAM, and monitored pipelines with CloudWatch and Datadog.',
     ],
     stack: ['AWS', 'OpenSearch', 'Terraform', 'AWS SAM', 'CloudWatch', 'Datadog'],
     metrics: [{ value: 150, prefix: '+', suffix: '%', label: 'batch processing throughput after the redesign' }],
@@ -76,10 +76,10 @@ export const experience: Role[] = [
     endISO: '2025-04',
     domain: 'VNPAY Cloud, a private cloud platform for fintech and enterprise customers',
     points: [
-      'Designed and operated the platform on OpenStack and Cluster API, with automated provisioning, scaling and zero-downtime upgrades for 50+ production Kubernetes clusters.',
-      'Implemented multi-tenant authentication and authorization with Keycloak and role-based access control, isolating 20+ customer organizations.',
-      'Integrated and operated Kong Gateway for 100+ microservices, with service-level and network-level access control.',
-      'Automated about 80% of data-center provisioning and infrastructure configuration.',
+      'Designed and operated the platform on OpenStack and Cluster API, automating provisioning, scaling and zero-downtime upgrades for 50+ production Kubernetes clusters.',
+      'Implemented multi-tenant authentication and role-based access control with Keycloak for 20+ customer organizations.',
+      'Integrated and operated Kong Gateway for 100+ microservices, with access controls at the service and network levels.',
+      'Automated around 80% of data center provisioning and infrastructure configuration.',
     ],
     stack: ['OpenStack', 'Cluster API', 'Kubernetes', 'Keycloak', 'Kong'],
     metrics: [
@@ -99,7 +99,7 @@ export const experience: Role[] = [
     domain: 'A cross-chain NFT and token platform',
     points: [
       'Developed and reviewed 15+ smart contracts for DeFi and NFT use cases in Solidity and Move.',
-      'Built event-driven services that capture on-chain events and sync them into off-chain databases and APIs.',
+      'Built event-driven services to capture on-chain events and sync them to off-chain databases and APIs.',
       'Integrated backend services with 5+ blockchain networks, including Ethereum, BSC, Polygon, Aptos and Sui.',
     ],
     stack: ['Solidity', 'Move', 'Event-driven services'],
@@ -137,7 +137,7 @@ export const expertise: Expertise[] = [
     area: 'Database and caching',
     tone: 'cyan',
     glyph: 'db',
-    about: 'Relational, document, search and cache stores, and how to observe them.',
+    about: 'Data stores, search, caching and database monitoring.',
     tools: ['PostgreSQL', 'TimescaleDB', 'Redis', 'MongoDB', 'OpenSearch', 'Elasticsearch', 'ClickHouse'],
     evidence: [
       { label: 'LockLens (PostgreSQL)', href: '#locklens' },
@@ -171,7 +171,7 @@ export const expertise: Expertise[] = [
     area: 'Observability',
     tone: 'emerald',
     glyph: 'pulse',
-    about: 'Metrics, traces, logs and dashboards, and acting on what they show.',
+    about: 'Using metrics, traces and logs to understand system behavior.',
     tools: ['OpenTelemetry', 'Prometheus', 'Grafana', 'ELK', 'CloudWatch', 'Datadog'],
     evidence: [
       { label: 'LockLens', href: '#locklens' },

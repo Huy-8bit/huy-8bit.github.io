@@ -61,14 +61,14 @@ export const projects: Project[] = [
     kind: 'Personal project · Open source',
     tagline: 'PostgreSQL monitoring and incident investigation.',
     problem:
-      'When PostgreSQL slows down or sessions start blocking each other, you need to know who is blocking whom right now, and still have the evidence after the incident is over.',
+      'When PostgreSQL slows down or sessions block each other, it helps to see what is happening and keep that evidence after the incident ends.',
     approach:
-      'Read-only collectors sample every instance on a schedule. A rule engine works on the recent history, builds blocking trees from <code>pg_blocking_pids()</code>, and records each incident with the statement, the sessions involved and a timeline.',
+      'LockLens samples each instance through read-only collectors, builds blocking trees with <code>pg_blocking_pids()</code>, and records incidents with the relevant statements, sessions and timeline.',
     highlights: [
-      'Database load by wait class, wait event and statement, from active session sampling.',
-      'Blocking trees with the root blocker, 18 evidence-based rules and an incident recorder.',
-      'Per-statement baselines that flag regressions and rank possible explanations, never presented as confirmed causes.',
-      'Observe-only: it connects with a read-only role and never changes the databases it watches.',
+      'Breaks down database load by wait class, wait event and statement using active session sampling.',
+      'Shows root blockers and records incidents using 18 evidence-based rules.',
+      'Flags query regressions against per-statement baselines and ranks possible explanations without treating them as confirmed causes.',
+      'Connects with a read-only role and never changes the databases it monitors.',
     ],
     stack: ['Go', 'React', 'TypeScript', 'PostgreSQL', 'TimescaleDB', 'Docker'],
     status: 'Tested against PostgreSQL 14–18 in a local lab. Not yet run in production.',
@@ -80,7 +80,7 @@ export const projects: Project[] = [
     facts: [
       { label: 'Type', value: 'Personal project, open source' },
       { label: 'License', value: 'MIT' },
-      { label: 'Status', value: 'Young. Tested against PostgreSQL 14–18 in a local lab; not yet run in production.' },
+      { label: 'Status', value: 'Tested against PostgreSQL 14–18 in a local lab; not yet run in production.' },
       { label: 'Ships as', value: 'Two Docker images: a Go backend and an nginx frontend' },
     ],
     shots: [
@@ -90,17 +90,17 @@ export const projects: Project[] = [
       { image: llSql, alt: 'LockLens read-only SQL editor with an execution plan graph', caption: 'Read-only SQL editor and plan' },
     ],
     description:
-      'Case study: LockLens, an open-source PostgreSQL monitoring and incident investigation tool written in Go and React. How it collects, explains and keeps evidence, and how it was tested.',
+      'LockLens is an open-source PostgreSQL monitoring and incident investigation tool built with Go and React.',
     intro:
-      'LockLens is an open-source tool for monitoring PostgreSQL and investigating incidents. It is a personal project: a Go backend with collectors, a rule engine and an API, and a React UI, shipped as two Docker images.',
+      'LockLens is a personal open-source project for monitoring PostgreSQL and investigating incidents. It combines a Go backend, collectors and a rule engine with a React interface, packaged as two Docker images.',
     sections: [
       {
         kind: 'text',
         id: 'problem',
         title: 'The problem',
         paragraphs: [
-          'PostgreSQL reports a lot about itself: sessions and what they wait on, the locks they hold, and statistics for every statement. Most of it describes this moment. When a database slows down or sessions block each other, the useful questions are which session is the root blocker, which statement started it, and what the load looked like at the time. Once the incident ends, that state is gone unless something recorded it.',
-          'LockLens watches each instance continuously, explains what it sees in terms of sessions, statements and waits, and keeps the evidence.',
+          'PostgreSQL exposes useful information about sessions, waits, locks and statements, but much of it reflects only the current state. When an incident ends, details such as the root blocker and the load at the time can disappear unless they were recorded.',
+          'LockLens monitors each instance and keeps that context together, making it easier to investigate an incident while it is happening or afterward.',
         ],
       },
       {
@@ -110,7 +110,7 @@ export const projects: Project[] = [
         diagram: true,
         items: [
           { title: 'One worker per instance', body: 'Each monitored instance gets a worker with a small read-only connection pool. Its collectors run on their own schedules, under a global concurrency limit.' },
-          { title: 'Honest counters', body: 'Cumulative counters become rates at ingest. Restarts, statistics resets and gaps are stored as unknown, never as zero.' },
+          { title: 'Accurate rates', body: 'Cumulative counters become rates at ingest. Restarts, statistics resets and gaps are stored as unknown, never as zero.' },
           { title: 'Bounded writes', body: 'Writes to the monitoring store go through a bounded queue. If the store falls behind, the oldest batch is dropped and recorded as a collection gap.' },
           { title: 'Rules on recent history', body: 'After each activity collection, the incident recorder evaluates the rules on the in-memory history and opens, extends or resolves incidents with their evidence.' },
           { title: 'Live UI', body: 'The API serves live values from memory and history from the store, and pushes server-sent events so the UI refreshes only what changed.' },
@@ -164,7 +164,7 @@ export const projects: Project[] = [
           'A demo lab starts a primary, three streaming standbys and a background workload, and can stage scenarios such as a blocking chain.',
         ],
         footer:
-          'LockLens is young. It has not yet been run in production environments, and performance figures in its docs are lab measurements, not guarantees.',
+          'LockLens has not yet been run in production. Performance figures in its documentation are lab measurements, not guarantees.',
       },
     ],
   },
@@ -175,9 +175,9 @@ export const projects: Project[] = [
     kind: 'Personal project · Open source',
     tagline: 'Selective client-side caching for Redis, in Go.',
     problem:
-      'A few Redis keys often take most of the reads. Serving them from local memory saves a network round trip, but every cached key has to be tracked by Redis and invalidated when it changes. The hard part is choosing which keys are worth it.',
+      'Some Redis workloads repeatedly read the same keys. Caching them locally can save network round trips, but Redis must track cached keys and invalidate them when they change.',
     approach:
-      'Each instance counts its own reads with a fixed-memory hot-key detector, and scores candidates every window on read rate, hit ratio, writes, value size and a memory budget. Admitted keys are served from memory and kept fresh by Redis client tracking. Every other read goes to Redis.',
+      'KeyShift detects frequently read keys in each application instance and scores them against factors such as read rate, writes, value size and available memory. Selected keys are cached locally and invalidated through Redis client tracking; other reads go to Redis.',
     highlights: [],
     metrics: {
       items: [
@@ -202,17 +202,17 @@ export const projects: Project[] = [
       { label: 'Requires', value: 'Go 1.26+, Redis 6.0+ with RESP3' },
     ],
     description:
-      'Case study: KeyShift, a Go SDK that decides per instance which Redis keys to serve from local memory. Hot-key detection, adaptive admission, client tracking, and benchmark results with their conditions.',
+      'KeyShift is a Go SDK for selective Redis client-side caching, with hot-key detection and adaptive admission.',
     intro:
-      'KeyShift is a Go SDK that decides, inside each application instance, which Redis keys to serve from local memory. It is a personal open-source project, currently at version 0.1.0.',
+      'KeyShift is a personal open-source Go SDK that selects which Redis keys to cache inside each application instance. It is currently at version 0.1.0.',
     sections: [
       {
         kind: 'text',
         id: 'problem',
         title: 'The problem',
         paragraphs: [
-          'In many Redis workloads a small set of keys takes a large share of the reads. Keeping those values in the application’s memory removes a network round trip per read. It also brings work: Redis has to track each cached key for every connection that holds it, every write has to invalidate the copies, and a key that changes often is rarely read from memory before it is invalidated again.',
-          'Popularity also depends on where you measure it. A key read 2,000 times per second across 50 pods may see only 40 reads per second on each pod. So KeyShift decides per instance, from what that instance measures.',
+          'In some Redis workloads, a small set of keys receives most of the reads. Keeping those values in application memory avoids network round trips, but Redis still needs to track and invalidate the cached copies. Frequently changing keys may be invalidated before the cache can be useful.',
+          'Popularity also looks different from each instance. A key read 2,000 times per second across 50 pods may receive only 40 reads per second on each one. KeyShift therefore makes caching decisions using each instance’s own measurements.',
         ],
       },
       {
@@ -232,8 +232,8 @@ export const projects: Project[] = [
       {
         kind: 'code',
         id: 'explain',
-        title: 'Every decision has a reason',
-        intro: '<code>client.Explain(key)</code> returns a key’s state and why it is in that state. This is the worked example from the docs, a key that another service writes constantly:',
+        title: 'Understanding a caching decision',
+        intro: '<code>client.Explain(key)</code> returns a key’s current state and the reason for it. This example from the docs shows a key that another service writes frequently:',
         lang: 'go',
         code: `d := client.Explain("stock:7")
 // State:  "cooldown"
@@ -243,7 +243,7 @@ export const projects: Project[] = [
       {
         kind: 'bench',
         id: 'benchmarks',
-        title: 'Benchmarks, with their conditions',
+        title: 'Benchmark results',
         intro:
           'The repository includes a reproducible benchmark suite: uniform, Zipf, single-hot, write-heavy, expiring, hot-shift and fault-injection workloads. Open-loop runs offer the same 20,000 operations per second to every configuration, and a read counts as stale when it returns a version older than one committed before the read started.',
         environment: [
@@ -284,13 +284,13 @@ export const projects: Project[] = [
     kind: 'Personal project · Source available',
     tagline: 'An Android tablet as a real extended display for the Mac, over USB-C.',
     problem:
-      'A tablet has no video input, and macOS has no public API for creating a display it treats as a real monitor. Screen capture alone can only mirror the screens you already have.',
+      'An Android tablet cannot directly accept video input, and macOS has no public API for creating a display it treats as a monitor. Screen capture alone can only mirror an existing screen.',
     approach:
-      'ExtendPad creates a virtual monitor on the Mac, captures and hardware-encodes it as H.264, and streams it through <code>adb reverse</code> over the USB cable. The tablet decodes it in hardware and draws the cursor itself, from positions sent at 120 Hz.',
+      'ExtendPad creates a virtual monitor on the Mac, captures and encodes it as H.264, then streams it over USB using <code>adb reverse</code>. The tablet decodes the video in hardware and draws the cursor using positions sent at 120 Hz.',
     highlights: [
-      'The private display API is isolated in one Objective-C file and resolved at runtime, so a macOS change gives a clear error instead of a crash.',
-      'Bounded at every stage: frames are dropped before the encoder, never queued, so latency can’t build up.',
-      'Mac and tablet authenticate with HMAC-SHA256, using a pairing token delivered only over ADB.',
+      'Isolates the private display API in one Objective-C file and reports an error if it becomes unavailable.',
+      'Limits buffering across the pipeline and drops frames before encoding to prevent queues from growing.',
+      'Authenticates the Mac and tablet with HMAC-SHA256 using a pairing token delivered over ADB.',
     ],
     stack: ['Swift', 'SwiftUI', 'Objective-C', 'Kotlin', 'ScreenCaptureKit', 'VideoToolbox', 'MediaCodec'],
     status: 'macOS 13+ on Apple Silicon or Intel, and Android 8+.',
@@ -305,17 +305,17 @@ export const projects: Project[] = [
       { label: 'Apps', value: 'A Swift menu-bar app for the Mac and a Kotlin app for the tablet' },
     ],
     description:
-      'Case study: ExtendPad, which turns an Android tablet into a real extended macOS display over USB-C. Virtual display, hardware H.264, a bounded frame pipeline, and how it is tested.',
+      'ExtendPad turns an Android tablet into an extended macOS display over USB-C using a virtual display and hardware H.264 encoding.',
     intro:
-      'ExtendPad turns an Android tablet into a real extended display for a Mac, over a USB-C cable. It is a personal project with two apps: a Swift menu-bar app for macOS and a Kotlin app for Android.',
+      'ExtendPad is a personal project that turns an Android tablet into an extended display for a Mac over USB-C. It consists of a Swift menu-bar app for macOS and a Kotlin app for Android.',
     sections: [
       {
         kind: 'text',
         id: 'problem',
         title: 'The problem',
         paragraphs: [
-          'A tablet has no video input, so a second screen on it has to be made in software. macOS only extends the desktop onto displays it treats as real monitors, and there is no public API to create one. The capture APIs can only record screens that already exist, which gives you mirroring, not an extended desktop.',
-          'ExtendPad creates the display, then has to move its picture to the tablet with as little delay as possible, without letting a slow stage pile up frames.',
+          'A tablet has no direct video input, so using it as a second screen requires a software solution. macOS can extend the desktop onto a monitor, but has no public API to create one. Its capture APIs only capture existing screens.',
+          'ExtendPad creates a virtual display and streams it to the tablet, limiting buffering along the way to avoid accumulating delay.',
         ],
       },
       {
@@ -335,8 +335,8 @@ export const projects: Project[] = [
       {
         kind: 'table',
         id: 'pipeline',
-        title: 'Bounded at every stage',
-        intro: 'Every stage has a limit and a rule for what happens when it is reached, from the architecture notes:',
+        title: 'Keeping the pipeline bounded',
+        intro: 'The architecture sets limits at each stage and defines what happens when they are reached:',
         columns: ['Stage', 'Limit', 'When it’s full'],
         rows: [
           ['Capture', '6 surfaces', 'ScreenCaptureKit drops frames'],
