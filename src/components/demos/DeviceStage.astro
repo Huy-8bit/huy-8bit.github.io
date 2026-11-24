@@ -1,0 +1,117 @@
+---
+// ExtendPad: a stylized Mac and Android tablet joined by USB-C, with frames moving along the
+// documented pipeline. No product photos exist yet, so this is drawn and labelled as an illustration.
+const stages = [
+  { name: 'Virtual display', where: 'Mac', detail: 'CGVirtualDisplay' },
+  { name: 'Capture', where: 'Mac', detail: 'ScreenCaptureKit' },
+  { name: 'Encode', where: 'Mac', detail: 'VideoToolbox H.264' },
+  { name: 'USB-C', where: 'Cable', detail: 'adb reverse' },
+  { name: 'Decode', where: 'Tablet', detail: 'MediaCodec' },
+  { name: 'Display', where: 'Tablet', detail: 'Android surface' },
+];
+const framePath =
+  'M360 230 C 400 262, 432 292, 462 296 C 520 300, 520 404, 610 404 C 690 404, 742 382, 770 330 C 786 300, 786 250, 772 206';
+---
+<figure class="ds" aria-label="ExtendPad pipeline from the Mac to the tablet" data-anim>
+  <div class="ds-stage">
+    <svg class="ds-svg" viewBox="0 0 1000 460" aria-hidden="true" data-smil>
+      <defs>
+        <linearGradient id="ds-screen" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" style="stop-color:var(--ep-1);stop-opacity:.28" />
+          <stop offset="0.55" style="stop-color:var(--ep-3);stop-opacity:.12" />
+          <stop offset="1" style="stop-color:var(--ep-2);stop-opacity:.26" />
+        </linearGradient>
+        <linearGradient id="ds-frame" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" style="stop-color:var(--ep-1)" />
+          <stop offset="1" style="stop-color:var(--ep-2)" />
+        </linearGradient>
+        <radialGradient id="ds-floor" r="50%">
+          <stop offset="0" style="stop-color:var(--ep-1);stop-opacity:.28" />
+          <stop offset="1" style="stop-color:var(--ep-1);stop-opacity:0" />
+        </radialGradient>
+        <clipPath id="ds-mac-clip"><rect x="62" y="62" width="356" height="212" rx="6" /></clipPath>
+        <clipPath id="ds-tab-clip"><rect x="626" y="116" width="316" height="190" rx="10" /></clipPath>
+      </defs>
+
+      <ellipse cx="240" cy="330" rx="260" ry="26" fill="url(#ds-floor)" />
+      <ellipse cx="784" cy="350" rx="210" ry="22" fill="url(#ds-floor)" />
+
+      <!-- Mac -->
+      <g class="ds-mac">
+        <rect class="ds-bezel" x="48" y="48" width="384" height="240" rx="16" />
+        <rect class="ds-screen" x="62" y="62" width="356" height="212" rx="6" fill="url(#ds-screen)" />
+        <g clip-path="url(#ds-mac-clip)">
+          <rect class="ds-menubar" x="62" y="62" width="356" height="12" />
+          <rect class="ds-win" x="86" y="96" width="150" height="104" rx="7" />
+          <rect class="ds-win-bar" x="86" y="96" width="150" height="14" rx="7" />
+          <rect class="ds-win ds-win-2" x="186" y="150" width="128" height="96" rx="7" />
+          <g class="ds-moving">
+            <rect class="ds-win ds-win-accent" x="300" y="104" width="104" height="80" rx="7" />
+            <rect class="ds-win-bar ds-win-bar-accent" x="300" y="104" width="104" height="13" rx="7" />
+          </g>
+          <text class="ds-tag-in" x="74" y="262">ExtendPad Display →</text>
+        </g>
+        <path class="ds-base" d="M20 292 h440 a6 6 0 0 1 -6 10 h-428 a6 6 0 0 1 -6 -10 z" />
+        <rect class="ds-notch" x="210" y="292" width="60" height="4" rx="2" />
+        <rect class="ds-port" x="452" y="292" width="10" height="6" rx="2" />
+      </g>
+
+      <!-- cable -->
+      <path class="ds-cable" d="M462 296 C 520 300, 520 404, 610 404 C 690 404, 742 382, 770 330 L 776 318" />
+      <path class="ds-cable-glow" d="M462 296 C 520 300, 520 404, 610 404 C 690 404, 742 382, 770 330 L 776 318" pathLength="1" />
+      <rect class="ds-plug" x="762" y="310" width="22" height="10" rx="3" transform="rotate(-62 773 315)" />
+
+      <!-- tablet -->
+      <g class="ds-tab">
+        <rect class="ds-bezel" x="610" y="100" width="348" height="222" rx="22" />
+        <rect class="ds-screen" x="626" y="116" width="316" height="190" rx="10" fill="url(#ds-screen)" />
+        <g clip-path="url(#ds-tab-clip)">
+          <g class="ds-arriving">
+            <rect class="ds-win ds-win-accent" x="650" y="146" width="140" height="104" rx="8" />
+            <rect class="ds-win-bar ds-win-bar-accent" x="650" y="146" width="140" height="15" rx="8" />
+          </g>
+          <rect class="ds-win" x="806" y="176" width="112" height="92" rx="8" />
+          <rect class="ds-win-bar" x="806" y="176" width="112" height="14" rx="8" />
+          <path id="ds-cursor-path" d="M700 200 C 760 170, 840 210, 860 236 C 880 262, 760 270, 700 200" fill="none" />
+          <path class="ds-cursor" d="M0 0 L0 14 L4 10.5 L7 17 L9.4 16 L6.4 9.6 L11 9.6 Z" visibility="hidden">
+            <set attributeName="visibility" to="visible" begin="0.6s" fill="freeze" />
+            <animateMotion dur="6s" repeatCount="indefinite" begin="0.6s"><mpath href="#ds-cursor-path" /></animateMotion>
+          </path>
+        </g>
+        <circle class="ds-cam" cx="958" cy="211" r="2.5" />
+      </g>
+
+      <!-- frames travelling the pipeline -->
+      <path id="ds-frames-path" d={framePath} fill="none" />
+      {[0, 0.8, 1.6, 2.4].map((b) => (
+        <g class="ds-frame" visibility="hidden">
+          <set attributeName="visibility" to="visible" begin={`${b}s`} fill="freeze" />
+          <rect x="-11" y="-7.5" width="22" height="15" rx="3.5" fill="url(#ds-frame)" />
+          <rect x="-7" y="-3.5" width="9" height="2.2" rx="1" class="ds-frame-line" />
+          <rect x="-7" y="0.5" width="13" height="2.2" rx="1" class="ds-frame-line" />
+          <animateMotion dur="3.2s" begin={`${b}s`} repeatCount="indefinite" rotate="0" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.45 0 0.25 1">
+            <mpath href="#ds-frames-path" />
+          </animateMotion>
+        </g>
+      ))}
+
+      <!-- annotations -->
+      <g class="ds-notes">
+        <g transform="translate(110 22)"><rect width="150" height="22" rx="11" /><text x="75" y="15" text-anchor="middle">virtual display</text></g>
+        <g transform="translate(300 330)"><rect width="168" height="22" rx="11" /><text x="84" y="15" text-anchor="middle">H.264, hardware encode</text></g>
+        <g transform="translate(520 418)"><rect width="150" height="22" rx="11" /><text x="75" y="15" text-anchor="middle">USB-C · adb reverse</text></g>
+        <g transform="translate(796 72)"><rect width="150" height="22" rx="11" /><text x="75" y="15" text-anchor="middle">pointer at 120 Hz</text></g>
+      </g>
+    </svg>
+  </div>
+
+  <ol class="ds-rail" aria-label="The pipeline, from the Mac to the tablet">
+    {stages.map((s, i) => (
+      <li style={`--i:${i}`}>
+        <span class="ds-step label">{String(i + 1).padStart(2, '0')} · {s.where}</span>
+        <span class="ds-name">{s.name}</span>
+        <span class="ds-detail">{s.detail}</span>
+      </li>
+    ))}
+  </ol>
+</figure>

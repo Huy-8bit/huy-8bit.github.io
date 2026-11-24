@@ -22,16 +22,21 @@ if (hasWriting) links.splice(links.length - 1, 0, { href: url('writing/'), label
       <span>{profile.name}</span>
     </a>
 
-    <nav class="nav" aria-label="Main">
+    <nav class="nav" aria-label="Main" data-nav>
       <ul>
-        {links.map((l) => <li><a href={l.href} data-spy={home ? l.id : undefined}>{l.label}</a></li>)}
+        {links.map((l) => <li><a href={l.href} data-spy={home && l.id ? l.id : undefined}>{l.label}</a></li>)}
       </ul>
+      <span class="nav-indicator" aria-hidden="true"></span>
     </nav>
 
     <div class="header-tools">
       <span class="header-sep" aria-hidden="true"></span>
       <a class="icon-btn header-social" href={profile.github} rel="me noopener" aria-label="GitHub profile"><Icon name="github" size={18} /></a>
       <a class="icon-btn header-social" href={profile.linkedin} rel="me noopener" aria-label="LinkedIn profile"><Icon name="linkedin" size={17} /></a>
+      <button type="button" class="icon-btn motion-toggle" data-motion-toggle aria-pressed="false" aria-label="Pause animations">
+        <Icon name="pause" size={16} class="i-pause" />
+        <Icon name="play" size={16} class="i-play" />
+      </button>
       <button type="button" class="icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme">
         <Icon name="sun" size={18} class="i-sun" />
         <Icon name="moon" size={17} class="i-moon" />
@@ -42,6 +47,7 @@ if (hasWriting) links.splice(links.length - 1, 0, { href: url('writing/'), label
       </button>
     </div>
   </div>
+  <span class="progress" aria-hidden="true"></span>
 
   <div id="mobile-menu" class="mobile-menu" hidden data-menu>
     <nav class="container" aria-label="Main (mobile)">
@@ -59,47 +65,59 @@ if (hasWriting) links.splice(links.length - 1, 0, { href: url('writing/'), label
 <script>
   const root = document.documentElement;
   const header = document.querySelector<HTMLElement>('[data-header]');
-
-  // Border under the header once the page scrolls.
-  if (header) {
-    const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-  }
-
-  // Theme: the inline script in <head> sets data-theme before paint; this keeps it in sync.
-  const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
-  const dark = window.matchMedia('(prefers-color-scheme: dark)');
-  const still = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const stored = () => {
+  const read = (k: string) => {
     try {
-      return localStorage.getItem('theme');
+      return localStorage.getItem(k);
     } catch {
       return null;
     }
   };
-  const label = () =>
-    toggle?.setAttribute('aria-label', root.dataset.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
-  const apply = (theme: string) => {
-    if (!still.matches) {
-      root.classList.add('theme-fade');
-      window.setTimeout(() => root.classList.remove('theme-fade'), 300);
-    }
-    root.dataset.theme = theme;
-    label();
-  };
-  label();
-  toggle?.addEventListener('click', () => {
-    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  const write = (k: string, v: string) => {
     try {
-      localStorage.setItem('theme', next);
+      localStorage.setItem(k, v);
     } catch {
       /* storage unavailable: the choice lasts for this page only */
     }
-    apply(next);
+  };
+
+  // Theme: circular reveal from the toggle when motion is on and the browser supports view transitions.
+  const themeBtn = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  const themeLabel = () =>
+    themeBtn?.setAttribute('aria-label', root.dataset.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+  const setTheme = (t: string) => {
+    root.dataset.theme = t;
+    themeLabel();
+  };
+  themeLabel();
+  themeBtn?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    write('theme', next);
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } };
+    if (doc.startViewTransition && root.dataset.motion !== 'reduced') {
+      const r = themeBtn.getBoundingClientRect();
+      root.style.setProperty('--tx', `${r.left + r.width / 2}px`);
+      root.style.setProperty('--ty', `${r.top + r.height / 2}px`);
+      root.classList.add('theme-vt');
+      doc.startViewTransition(() => setTheme(next)).finished.finally(() => root.classList.remove('theme-vt'));
+    } else setTheme(next);
   });
-  dark.addEventListener('change', (e) => {
-    if (!stored()) apply(e.matches ? 'dark' : 'light');
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (!read('theme')) setTheme(e.matches ? 'dark' : 'light');
+  });
+
+  // Motion: pauses every continuous animation on the site (WCAG 2.2.2).
+  const motionBtn = document.querySelector<HTMLButtonElement>('[data-motion-toggle]');
+  const motionLabel = () => {
+    const reduced = root.dataset.motion === 'reduced';
+    motionBtn?.setAttribute('aria-pressed', String(reduced));
+    motionBtn?.setAttribute('aria-label', reduced ? 'Play animations' : 'Pause animations');
+  };
+  motionLabel();
+  motionBtn?.addEventListener('click', () => {
+    root.dataset.motion = root.dataset.motion === 'reduced' ? 'full' : 'reduced';
+    write('motion', root.dataset.motion);
+    motionLabel();
+    document.dispatchEvent(new CustomEvent('motionchange'));
   });
 
   // Mobile menu.
@@ -122,20 +140,45 @@ if (hasWriting) links.splice(links.length - 1, 0, { href: url('writing/'), label
   });
   window.matchMedia('(min-width: 961px)').addEventListener('change', (m) => m.matches && setOpen(false));
 
-  // Highlight the section in view (home page only).
+  // Active section: aria-current plus a sliding indicator under the link.
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+  const indicator = nav?.querySelector<HTMLElement>('.nav-indicator');
   const spy = new Map<string, HTMLAnchorElement>();
-  document.querySelectorAll<HTMLAnchorElement>('[data-spy]').forEach((a) => a.dataset.spy && spy.set(a.dataset.spy, a));
+  document.querySelectorAll<HTMLAnchorElement>('[data-spy]').forEach((a) => spy.set(a.dataset.spy!, a));
+  const move = (a: HTMLAnchorElement | null) => {
+    if (!indicator || !nav) return;
+    if (!a) return indicator.style.setProperty('--o', '0');
+    const n = nav.getBoundingClientRect();
+    const r = a.getBoundingClientRect();
+    indicator.style.setProperty('--x', `${r.left - n.left + 12}px`);
+    indicator.style.setProperty('--w', `${r.width - 24}px`);
+    indicator.style.setProperty('--o', '1');
+  };
   const sections = [...spy.keys()].map((id) => document.getElementById(id)).filter((s): s is HTMLElement => !!s);
   if (sections.length && 'IntersectionObserver' in window) {
+    let current: HTMLAnchorElement | null = null;
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
           if (!e.isIntersecting) continue;
-          spy.forEach((a, id) => (id === e.target.id ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')));
+          current = spy.get(e.target.id) ?? null;
+          spy.forEach((a) => (a === current ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')));
+          move(current);
         }
       },
       { rootMargin: '-40% 0px -55% 0px' },
     );
     sections.forEach((s) => io.observe(s));
+    window.addEventListener('resize', () => move(current), { passive: true });
+    // Leaving the tracked sections (back to the hero) hides the indicator.
+    const hero = document.querySelector('.hero');
+    if (hero)
+      new IntersectionObserver((e) => {
+        if (e[0]?.isIntersecting && e[0].intersectionRatio > 0.5) {
+          current = null;
+          spy.forEach((a) => a.removeAttribute('aria-current'));
+          move(null);
+        }
+      }, { threshold: [0.5, 0.6] }).observe(hero);
   }
 </script>

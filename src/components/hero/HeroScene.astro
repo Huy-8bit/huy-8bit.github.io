@@ -1,0 +1,220 @@
+---
+// Hero: an illustrative engineering scene. It is conceptual on purpose and does not depict any
+// real system. Nodes can be hovered or focused for a short explanation.
+const W = 600;
+const H = 540;
+const hex = (cx: number, cy: number, r: number) =>
+  Array.from({ length: 6 }, (_, i) => {
+    const a = (Math.PI / 3) * i - Math.PI / 2;
+    return `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`;
+  }).join(' ');
+
+const edges = [
+  { id: 'e1', d: 'M136 214 C196 214 214 268 242 286', tone: 'in' },
+  { id: 'e2', d: 'M116 300 L238 300', tone: 'in' },
+  { id: 'e3', d: 'M136 386 C196 386 214 332 242 314', tone: 'in' },
+  { id: 'e4', d: 'M354 268 C398 236 420 196 452 180', tone: 'redis' },
+  { id: 'e5', d: 'M354 332 C398 362 420 398 456 410', tone: 'pg' },
+  { id: 'e6', d: 'M300 362 L300 444', tone: 'queue' },
+  { id: 'e7', d: 'M262 476 C226 478 204 478 172 478', tone: 'queue' },
+  { id: 'e8', d: 'M126 500 C220 540 400 528 462 432', tone: 'worker' },
+];
+// Packets: which edge, colour, duration, start offset.
+const packets = [
+  { e: 'e1', tone: 'in', dur: 2.6, begin: 1.4 },
+  { e: 'e2', tone: 'in', dur: 2.2, begin: 1.7 },
+  { e: 'e3', tone: 'in', dur: 2.8, begin: 2.1 },
+  { e: 'e4', tone: 'redis', dur: 1.8, begin: 1.9 },
+  { e: 'e4', tone: 'redis', dur: 1.8, begin: 2.8 },
+  { e: 'e5', tone: 'pg', dur: 2.4, begin: 2.3 },
+  { e: 'e6', tone: 'queue', dur: 2, begin: 2.6 },
+  { e: 'e7', tone: 'queue', dur: 2.2, begin: 3.4 },
+  { e: 'e8', tone: 'worker', dur: 3.6, begin: 3.8 },
+];
+const spots = [
+  { id: 'instances', x: 142, y: 176, title: 'Application instances', text: 'Copies of the same service. Each can keep its own hot data in memory, which is the idea behind KeyShift.' },
+  { id: 'service', x: 352, y: 246, title: 'A backend service', text: 'Takes requests, reads and writes data, and hands slow work to a queue.' },
+  { id: 'redis', x: 550, y: 146, title: 'Cache', text: 'Fast in-memory reads for hot keys. KeyShift decides which keys are worth caching in each instance.' },
+  { id: 'postgres', x: 560, y: 368, title: 'Database', text: 'The system of record. When it slows down or locks up, LockLens shows who is blocking whom.' },
+  { id: 'queue', x: 344, y: 452, title: 'Queue', text: 'Work handed off asynchronously, so a request doesn’t wait for it.' },
+  { id: 'worker', x: 178, y: 450, title: 'Worker', text: 'Consumes the queue and writes results back to the database.' },
+  { id: 'trace', x: 240, y: 22, title: 'Trace', text: 'One request broken into spans: where the time actually went.' },
+];
+const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
+---
+<figure class="scene" aria-label="Engineering scene: services, cache, database and queue" data-scene data-anim>
+  <div class="scene-stage">
+    <svg class="scene-svg" viewBox={`0 0 ${W} ${H}`} aria-hidden="true" data-smil>
+      <defs>
+        <radialGradient id="sc-core" cx="50%" cy="40%" r="70%">
+          <stop offset="0" style="stop-color:var(--g2);stop-opacity:0.55" />
+          <stop offset="1" style="stop-color:var(--g1);stop-opacity:0.08" />
+        </radialGradient>
+        <radialGradient id="sc-halo" r="50%">
+          <stop offset="0" style="stop-color:var(--g1);stop-opacity:0.35" />
+          <stop offset="1" style="stop-color:var(--g1);stop-opacity:0" />
+        </radialGradient>
+        <linearGradient id="sc-pg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" style="stop-color:var(--ll-2);stop-opacity:0.5" />
+          <stop offset="1" style="stop-color:var(--ll-1);stop-opacity:0.15" />
+        </linearGradient>
+        <clipPath id="sc-clip"><rect x="0" y="0" width="600" height="540" /></clipPath>
+        <pattern id="sc-hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="5" class="sc-hatch" />
+        </pattern>
+      </defs>
+
+      <!-- far layer: floor grid and orbit -->
+      <g class="layer far">
+        <g class="sc-floor" clip-path="url(#sc-clip)">
+          {[0, 1, 2, 3, 4, 5, 6].map((i) => <line x1={60 + i * 80} y1="250" x2={-120 + i * 140} y2="540" />)}
+          {[0, 1, 2, 3].map((i) => <line x1="0" y1={300 + i * i * 22 + i * 30} x2="600" y2={300 + i * i * 22 + i * 30} />)}
+        </g>
+        <ellipse class="sc-orbit" cx="300" cy="300" rx="214" ry="78" />
+        <path id="sc-orbit-path" d="M86 300 a214 78 0 1 0 428 0 a214 78 0 1 0 -428 0" fill="none" />
+        {[0, 4, 8].map((b) => (
+          <circle class="sc-orbiter" r="3" visibility="hidden">
+            <set attributeName="visibility" to="visible" begin={`${b}s`} fill="freeze" />
+            <animateMotion dur="12s" begin={`${b}s`} repeatCount="indefinite"><mpath href="#sc-orbit-path" /></animateMotion>
+          </circle>
+        ))}
+        <text class="sc-tag" x="508" y="316">cluster</text>
+      </g>
+
+      <!-- mid layer: connections and packets -->
+      <g class="layer mid">
+        {edges.map((e, i) => (
+          <path id={`sc-${e.id}`} d={e.d} class={`sc-edge sc-${e.tone}`} style={`--i:${i}`} pathLength="1" />
+        ))}
+        {packets.map((p) => (
+          <circle class={`sc-packet sc-${p.tone}`} r="4" visibility="hidden">
+            <set attributeName="visibility" to="visible" begin={`${p.begin}s`} fill="freeze" />
+            <animateMotion dur={`${p.dur}s`} begin={`${p.begin}s`} repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines="0.4 0 0.2 1">
+              <mpath href={`#sc-${p.e}`} />
+            </animateMotion>
+          </circle>
+        ))}
+        <text class="sc-note" x="392" y="206">cache.get</text>
+        <text class="sc-note" x="404" y="372">db.query</text>
+        <text class="sc-note" x="310" y="412">publish</text>
+      </g>
+
+      <!-- near layer: nodes and the trace panel -->
+      <g class="layer near">
+        <g class="sc-node" style="--i:0">
+          {[214, 300, 386].map((y) => (
+            <g>
+              <rect class="sc-box sc-box-in" x="48" y={y - 20} width="88" height="40" rx="10" />
+              <circle class="sc-led" cx="64" cy={y} r="3" />
+              <rect class="sc-line" x="74" y={y - 4} width="46" height="3" rx="1.5" />
+              <rect class="sc-line sc-line-dim" x="74" y={y + 3} width="30" height="3" rx="1.5" />
+            </g>
+          ))}
+          <text class="sc-label" x="92" y="424" text-anchor="middle">instances</text>
+        </g>
+
+        <g class="sc-node sc-core" style="--i:1">
+          <circle cx="300" cy="300" r="110" fill="url(#sc-halo)" />
+          <polygon class="sc-hex sc-hex-outer" points={hex(300, 300, 64)} />
+          <polygon class="sc-hex" points={hex(300, 300, 50)} fill="url(#sc-core)" />
+          <text class="sc-label sc-label-strong" x="300" y="296" text-anchor="middle">service</text>
+          <text class="sc-label" x="300" y="314" text-anchor="middle">api</text>
+        </g>
+
+        <g class="sc-node" style="--i:2">
+          {[0, 1, 2].map((k) => (
+            <path class={`sc-redis sc-redis-${k}`} d={`M500 ${150 + k * 16} l40 16 l-40 16 l-40 -16 z`} />
+          ))}
+          <text class="sc-label" x="500" y="224" text-anchor="middle">cache</text>
+        </g>
+
+        <g class="sc-node" style="--i:3">
+          <path class="sc-cyl" d="M462 378 v62 a44 13 0 0 0 88 0 v-62" />
+          <ellipse class="sc-cyl-top" cx="506" cy="378" rx="44" ry="13" />
+          <path class="sc-cyl-band" d="M462 400 a44 13 0 0 0 88 0" />
+          <path class="sc-cyl-band" d="M462 420 a44 13 0 0 0 88 0" />
+          <text class="sc-label" x="506" y="478" text-anchor="middle">database</text>
+        </g>
+
+        <g class="sc-node" style="--i:4">
+          {[0, 1, 2, 3].map((k) => <rect class="sc-q" x={266 + k * 18} y="458" width="12" height="34" rx="3" style={`--k:${k}`} />)}
+          <text class="sc-label" x="300" y="512" text-anchor="middle">queue</text>
+        </g>
+
+        <g class="sc-node" style="--i:5">
+          <rect class="sc-box sc-box-worker" x="84" y="456" width="88" height="40" rx="10" />
+          <circle class="sc-led sc-led-worker" cx="100" cy="476" r="3" />
+          <rect class="sc-line" x="110" y="472" width="46" height="3" rx="1.5" />
+          <rect class="sc-line sc-line-dim" x="110" y="479" width="30" height="3" rx="1.5" />
+          <text class="sc-label" x="128" y="520" text-anchor="middle">worker</text>
+        </g>
+
+        <g class="sc-trace" style="--i:6">
+          <rect class="sc-panel" x="24" y="22" width="210" height="106" rx="12" />
+          <text class="sc-label" x="40" y="44">trace</text>
+          <text class="sc-label sc-dim" x="218" y="44" text-anchor="end">spans</text>
+          <rect class="sc-span sc-span-root" x="40" y="56" width="178" height="8" rx="2" />
+          <rect class="sc-span" x="44" y="72" width="24" height="8" rx="2" />
+          <rect class="sc-span sc-span-cache" x="70" y="88" width="8" height="8" rx="2" />
+          <rect class="sc-span sc-span-wait" x="80" y="104" width="78" height="8" rx="2" />
+          <rect class="sc-span sc-span-db" x="158" y="104" width="40" height="8" rx="2" />
+        </g>
+      </g>
+    </svg>
+
+    <div class="scene-spots">
+      {spots.map((s) => (
+        <div class="spot-wrap" data-h={s.x < 200 ? 'start' : s.x > 400 ? 'end' : 'mid'} data-v={s.y < 160 ? 'below' : 'above'} style={`left:${pct(s.x, W)};top:${pct(s.y, H)}`}>
+          <button type="button" class="hot" aria-describedby={`tip-${s.id}`} aria-label={s.title}><span class="hot-dot" aria-hidden="true"></span></button>
+          <span class="tip" role="tooltip" id={`tip-${s.id}`}><strong>{s.title}</strong>{s.text}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</figure>
+
+<script>
+  // Gentle depth: the stage tilts and its layers shift with the pointer (fine pointers, motion on).
+  import { motionOn } from '../../scripts/motion';
+  const scene = document.querySelector<HTMLElement>('[data-scene]');
+  const host = scene?.closest<HTMLElement>('.hero');
+  if (scene && host && window.matchMedia('(pointer: fine)').matches) {
+    let tx = 0;
+    let ty = 0;
+    let x = 0;
+    let y = 0;
+    let raf = 0;
+    const tick = () => {
+      x += (tx - x) * 0.08;
+      y += (ty - y) * 0.08;
+      scene.style.setProperty('--px', x.toFixed(3));
+      scene.style.setProperty('--py', y.toFixed(3));
+      raf = Math.abs(tx - x) > 0.002 || Math.abs(ty - y) > 0.002 ? requestAnimationFrame(tick) : 0;
+    };
+    const kick = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+    host.addEventListener(
+      'pointermove',
+      (e) => {
+        if (!motionOn()) return;
+        const r = host.getBoundingClientRect();
+        tx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+        ty = ((e.clientY - r.top) / r.height - 0.5) * 2;
+        kick();
+      },
+      { passive: true },
+    );
+    host.addEventListener('pointerleave', () => {
+      tx = 0;
+      ty = 0;
+      kick();
+    });
+  }
+  // Touch: a tap on a node shows its explanation; tapping elsewhere hides it.
+  document.addEventListener('pointerdown', (e) => {
+    if ((e.target as Element).closest('.hot')) return;
+    const active = document.activeElement as HTMLElement | null;
+    if (active?.classList.contains('hot')) active.blur();
+  });
+</script>

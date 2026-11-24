@@ -1,0 +1,259 @@
+/* ==========================================================================
+   Tokens: colour (light and dark are designed separately), type, space, motion.
+   Dark applies when the system prefers dark (unless the visitor chose light)
+   or when the visitor chose dark. The head script always sets data-theme.
+   ========================================================================== */
+
+@property --zone-a {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgb(99 102 241 / 0.16);
+}
+@property --zone-b {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgb(34 211 238 / 0.1);
+}
+
+:root {
+  color-scheme: light;
+
+  /* Light: cool paper, navy ink, deeper accents so colour still carries contrast. */
+  --bg: #f5f7fc;
+  --bg-2: #edf1f9;
+  --surface: #ffffff;
+  --surface-2: #f4f6fc;
+  --raised: #ffffff;
+  --border: #dde3ef;
+  --border-2: #c6cfe2;
+  --text: #0a1024;
+  --text-2: #424e69;
+  --text-3: #535f7b;
+
+  --indigo: #4f46e5;
+  --violet: #7c3aed;
+  --cyan: #0891b2;
+  --blue: #0284c7;
+  --emerald: #059669;
+  --warm: #ea580c;
+  --pink: #db2777;
+  --accent-ink: #4338ca;
+  --on-accent: #ffffff;
+  --g1: #4f46e5;
+  --g2: #7c3aed;
+  --g3: #0891b2;
+
+  --grid-line: rgb(10 16 36 / 0.055);
+  --grain: 0.035;
+  --glass: rgb(255 255 255 / 0.72);
+  --glass-strong: rgb(255 255 255 / 0.9);
+  --glass-border: rgb(10 16 36 / 0.09);
+  --scrim: rgb(6 8 22 / 0.84);
+  --tick: rgb(10 16 36 / 0.26);
+  --mesh-1: rgb(99 102 241 / 0.2);
+  --mesh-2: rgb(34 211 238 / 0.18);
+  --mesh-3: rgb(236 72 153 / 0.1);
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
+  --shadow: 0 1px 2px rgb(15 23 42 / 0.05), 0 18px 44px -24px rgb(30 41 90 / 0.3);
+  --shadow-lg: 0 2px 6px rgb(15 23 42 / 0.05), 0 40px 90px -40px rgb(30 41 90 / 0.42);
+  --focus: #4f46e5;
+
+  /* Project palettes */
+  --ll-1: #1d5fa8;
+  --ll-2: #0891b2;
+  --ll-3: #0d9488;
+  --ll-ink: #0b5394;
+  --ks-1: #dc2626;
+  --ks-2: #e11d48;
+  --ks-3: #ea580c;
+  --ks-ink: #b91c1c;
+  --ep-1: #7c3aed;
+  --ep-2: #db2777;
+  --ep-3: #0284c7;
+  --ep-ink: #6d28d9;
+  --cr-1: #059669;
+  --cr-2: #0284c7;
+  --cr-ink: #047857;
+
+  /* Type */
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-md: 1.0625rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: clamp(1.375rem, 1.2rem + 0.7vw, 1.75rem);
+  --fs-2xl: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
+  --fs-display: clamp(3.25rem, 1.6rem + 6.4vw, 7.25rem);
+
+  /* Space */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+  --r-sm: 8px;
+  --r: 12px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --max: 1240px;
+  --gutter: clamp(20px, 4vw, 44px);
+  --header-h: 68px;
+  --section-pad: clamp(80px, 10vw, 136px);
+
+  /* Motion */
+  --t-fast: 150ms;
+  --t: 240ms;
+  --t-enter: 560ms;
+  --t-section: 820ms;
+  --t-ambient: 18s;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #060816;
+    --bg-2: #0a0f21;
+    --surface: #0f1529;
+    --surface-2: #141b33;
+    --raised: #0d1224;
+    --border: #1d2643;
+    --border-2: #2b375c;
+    --text: #f8fafc;
+    --text-2: #a9b4c9;
+    --text-3: #8d99b2;
+    --indigo: #6366f1;
+    --violet: #8b5cf6;
+    --cyan: #22d3ee;
+    --blue: #38bdf8;
+    --emerald: #34d399;
+    --warm: #fb923c;
+    --pink: #f472b6;
+    --accent-ink: #a5b4fc;
+    --on-accent: #060816;
+    --g1: #818cf8;
+    --g2: #c084fc;
+    --g3: #22d3ee;
+    --grid-line: rgb(148 163 184 / 0.075);
+    --grain: 0.06;
+    --glass: rgb(13 18 36 / 0.6);
+    --glass-strong: rgb(13 18 36 / 0.86);
+    --glass-border: rgb(148 163 184 / 0.14);
+    --tick: rgb(148 163 184 / 0.38);
+    --mesh-1: rgb(99 102 241 / 0.34);
+    --mesh-2: rgb(34 211 238 / 0.2);
+    --mesh-3: rgb(139 92 246 / 0.28);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 24px 60px -30px rgb(0 0 0 / 0.85);
+    --shadow-lg: 0 2px 8px rgb(0 0 0 / 0.4), 0 50px 110px -40px rgb(0 0 0 / 0.95);
+    --focus: #a5b4fc;
+    --ll-1: #4f8fd6;
+    --ll-2: #22d3ee;
+    --ll-3: #2dd4bf;
+    --ll-ink: #7dd3fc;
+    --ks-1: #ef4444;
+    --ks-2: #fb7185;
+    --ks-3: #fb923c;
+    --ks-ink: #fda4af;
+    --ep-1: #a78bfa;
+    --ep-2: #f472b6;
+    --ep-3: #38bdf8;
+    --ep-ink: #c4b5fd;
+    --cr-1: #34d399;
+    --cr-2: #38bdf8;
+    --cr-ink: #6ee7b7;
+  }
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #060816;
+  --bg-2: #0a0f21;
+  --surface: #0f1529;
+  --surface-2: #141b33;
+  --raised: #0d1224;
+  --border: #1d2643;
+  --border-2: #2b375c;
+  --text: #f8fafc;
+  --text-2: #a9b4c9;
+  --text-3: #8d99b2;
+  --indigo: #6366f1;
+  --violet: #8b5cf6;
+  --cyan: #22d3ee;
+  --blue: #38bdf8;
+  --emerald: #34d399;
+  --warm: #fb923c;
+  --pink: #f472b6;
+  --accent-ink: #a5b4fc;
+  --on-accent: #060816;
+  --g1: #818cf8;
+  --g2: #c084fc;
+  --g3: #22d3ee;
+  --grid-line: rgb(148 163 184 / 0.075);
+  --grain: 0.06;
+  --glass: rgb(13 18 36 / 0.6);
+  --glass-strong: rgb(13 18 36 / 0.86);
+  --glass-border: rgb(148 163 184 / 0.14);
+  --tick: rgb(148 163 184 / 0.38);
+  --mesh-1: rgb(99 102 241 / 0.34);
+  --mesh-2: rgb(34 211 238 / 0.2);
+  --mesh-3: rgb(139 92 246 / 0.28);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 24px 60px -30px rgb(0 0 0 / 0.85);
+  --shadow-lg: 0 2px 8px rgb(0 0 0 / 0.4), 0 50px 110px -40px rgb(0 0 0 / 0.95);
+  --focus: #a5b4fc;
+  --ll-1: #4f8fd6;
+  --ll-2: #22d3ee;
+  --ll-3: #2dd4bf;
+  --ll-ink: #7dd3fc;
+  --ks-1: #ef4444;
+  --ks-2: #fb7185;
+  --ks-3: #fb923c;
+  --ks-ink: #fda4af;
+  --ep-1: #a78bfa;
+  --ep-2: #f472b6;
+  --ep-3: #38bdf8;
+  --ep-ink: #c4b5fd;
+  --cr-1: #34d399;
+  --cr-2: #38bdf8;
+  --cr-ink: #6ee7b7;
+}
+
+/* Project and section themes: components read --p1..--p3 and --p-ink. */
+.t-brand {
+  --p1: var(--indigo);
+  --p2: var(--violet);
+  --p3: var(--cyan);
+  --p-ink: var(--accent-ink);
+}
+.t-locklens {
+  --p1: var(--ll-1);
+  --p2: var(--ll-2);
+  --p3: var(--ll-3);
+  --p-ink: var(--ll-ink);
+}
+.t-keyshift {
+  --p1: var(--ks-1);
+  --p2: var(--ks-2);
+  --p3: var(--ks-3);
+  --p-ink: var(--ks-ink);
+}
+.t-extendpad {
+  --p1: var(--ep-1);
+  --p2: var(--ep-2);
+  --p3: var(--ep-3);
+  --p-ink: var(--ep-ink);
+}
+.t-career {
+  --p1: var(--cr-1);
+  --p2: var(--cr-2);
+  --p3: var(--cyan);
+  --p-ink: var(--cr-ink);
+}

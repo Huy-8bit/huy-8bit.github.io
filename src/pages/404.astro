@@ -1,17 +1,18 @@
 ---
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
+import Ambient from '../components/hero/Ambient.astro';
 import { profile } from '../data/cv';
 import { url } from '../lib/url';
 ---
 <Base title={`Page not found · ${profile.name}`} noindex>
   <main id="main" class="notfound">
-    <div class="hero-bg" aria-hidden="true"></div>
-    <div class="container" style="position:relative">
+    <Ambient />
+    <div class="container" style="position:relative;z-index:1">
       <p class="sh-label label"><span class="sh-num">404</span>Not found</p>
-      <h1>This page doesn’t exist.</h1>
+      <h1><span class="grad-text is-live">This page doesn’t exist.</span></h1>
       <p>The link may be broken, or the page may have moved.</p>
-      <div class="hero-actions">
+      <div class="actions">
         <a class="btn btn-primary" href={url()}>Back to home <Icon name="arrow-right" size={17} class="i-arrow" /></a>
         <a class="btn btn-secondary" href={`${url()}#work`}>Selected work</a>
       </div>

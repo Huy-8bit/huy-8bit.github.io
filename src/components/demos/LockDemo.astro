@@ -1,0 +1,151 @@
+---
+// Illustrative lock-contention walkthrough in LockLens' terms. Session numbers echo the chain in the
+// LockLens README; the tree and timings are made up for the illustration and say so on screen.
+import Icon from '../Icon.astro';
+
+const nodes = [
+  { pid: 116, x: 22, y: 132, at: 0, state: 'idle in transaction', root: true },
+  { pid: 117, x: 232, y: 54, at: 1, state: 'waiting for lock' },
+  { pid: 119, x: 232, y: 212, at: 2, state: 'waiting for lock' },
+  { pid: 118, x: 432, y: 54, at: 2, state: 'waiting on 117' },
+];
+const W = 164;
+const H = 58;
+const edges = [
+  { from: 0, to: 1, at: 1 },
+  { from: 0, to: 2, at: 2 },
+  { from: 1, to: 3, at: 2 },
+];
+const steps = [
+  { t: 't+0 s', text: 'pid 116 updates a row, then sits idle inside its open transaction. It keeps the row lock.' },
+  { t: 't+2 s', text: 'pid 117 tries to update the same row and starts waiting for the lock.' },
+  { t: 't+5 s', text: 'pid 118 queues behind 117, and pid 119 waits on 116 as well.' },
+  { t: 't+9 s', text: 'The blocking tree resolves to one root: pid 116 blocks 2 sessions directly, 3 in total.' },
+  { t: 't+10 s', text: 'An incident is recorded with the statement, the sessions involved and this timeline.' },
+];
+const mid = (i: number) => ({ x: nodes[i].x + W, y: nodes[i].y + H / 2 });
+const inn = (i: number) => ({ x: nodes[i].x, y: nodes[i].y + H / 2 });
+---
+<div class="demo ld lit" data-lockdemo data-anim>
+  <div class="demo-head">
+    <p class="demo-title"><span class="label">Interactive</span> How LockLens reads a blocking chain</p>
+    <span class="demo-badge">Illustrative</span>
+  </div>
+  <div class="ld-body">
+    <div class="ld-stage" data-scroll-x data-label="Blocking chain diagram, scrolls sideways">
+      <svg class="ld-svg" viewBox="0 0 612 300" aria-hidden="true" data-step="4">
+        <defs>
+          <marker id="ld-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M1 1 9 5 1 9" class="ld-arrowhead" />
+          </marker>
+        </defs>
+        <g class="ld-grid">
+          {[0, 1, 2, 3, 4, 5].map((i) => <line x1={i * 122} y1="0" x2={i * 122} y2="300" />)}
+        </g>
+        {edges.map((e) => {
+          const a = mid(e.from);
+          const b = inn(e.to);
+          const cx = (a.x + b.x) / 2;
+          return (
+            <g class="ld-edge" data-at={e.at}>
+              <path d={`M${a.x} ${a.y} C${cx} ${a.y} ${cx} ${b.y} ${b.x - 4} ${b.y}`} pathLength="1" marker-end="url(#ld-arrow)" />
+              <text x={cx} y={(a.y + b.y) / 2 - 6} text-anchor="middle">blocks</text>
+            </g>
+          );
+        })}
+        {nodes.map((n) => (
+          <g class:list={['ld-node', { 'is-root': n.root }]} data-at={n.at}>
+            {n.root && <rect class="ld-ring" data-at="3" x={n.x - 6} y={n.y - 6} width={W + 12} height={H + 12} rx="16" />}
+            <rect class="ld-box" x={n.x} y={n.y} width={W} height={H} rx="12" />
+            <text class="ld-pid" x={n.x + 14} y={n.y + 24}>pid {n.pid}</text>
+            <text class="ld-state" x={n.x + 14} y={n.y + 43}>{n.state}</text>
+            {!n.root && <rect class="ld-wait" x={n.x + 14} y={n.y + H - 6} width={W - 28} height="2.5" rx="1.25" />}
+            {n.root && (
+              <g class="ld-lock" transform={`translate(${n.x + W - 30} ${n.y + 12})`}>
+                <rect x="0" y="8" width="16" height="12" rx="3" />
+                <path d="M3.5 8 V5 a4.5 4.5 0 0 1 9 0 V8" />
+              </g>
+            )}
+          </g>
+        ))}
+        <g class="ld-tag" data-at="3">
+          <rect x="48" y="210" width="112" height="24" rx="12" />
+          <text x="104" y="226" text-anchor="middle">root blocker</text>
+        </g>
+      </svg>
+      <p class="scroll-hint" aria-hidden="true">Swipe to see the whole diagram →</p>
+    </div>
+    <div class="ld-side">
+      <ol class="ld-steps" aria-label="What happens, step by step">
+        {steps.map((s, i) => (
+          <li data-at={i} class="is-on">
+            <span class="ld-t label">{s.t}</span>
+            <span>{s.text}</span>
+          </li>
+        ))}
+      </ol>
+      <div class="ld-incident" data-at="4">
+        <p class="label ink">Incident recorded</p>
+        <p><strong>Root blocker pid 116</strong>, idle in transaction. Blocks 2 sessions directly, 3 in total.</p>
+      </div>
+    </div>
+  </div>
+  <div class="demo-foot">
+    <div class="demo-controls">
+      <button type="button" class="btn btn-secondary btn-sm" data-ld-replay><Icon name="replay" size={15} /> Replay</button>
+      <button type="button" class="btn btn-quiet btn-sm" data-ld-next>Next step <Icon name="arrow-right" size={15} class="i-arrow" /></button>
+    </div>
+  </div>
+  <p class="sr-only" aria-live="polite" data-ld-live></p>
+</div>
+
+<script>
+  import { motionOn, onceVisible, watch } from '../../scripts/motion';
+  document.querySelectorAll<HTMLElement>('[data-lockdemo]').forEach((root) => {
+    const svg = root.querySelector<SVGSVGElement>('.ld-svg')!;
+    const items = [...root.querySelectorAll<Element>('[data-at]')];
+    const steps = [...root.querySelectorAll<HTMLElement>('.ld-steps li')];
+    const live = root.querySelector<HTMLElement>('[data-ld-live]')!;
+    const last = steps.length - 1;
+    let step = last;
+    let timer = 0;
+    let active = false;
+
+    const show = (n: number, announce = true) => {
+      step = n;
+      svg.dataset.step = String(n);
+      items.forEach((el) => el.classList.toggle('is-on', Number((el as HTMLElement).dataset.at) <= n));
+      steps.forEach((li, i) => li.classList.toggle('is-current', i === n));
+      if (announce) live.textContent = steps[n]?.querySelector('span:last-child')?.textContent ?? '';
+    };
+    const stop = () => window.clearTimeout(timer);
+    const run = (from = 0) => {
+      stop();
+      show(from);
+      const tick = () => {
+        if (step >= last) return;
+        if (!active) return; // resumes when visible again
+        show(step + 1);
+        timer = window.setTimeout(tick, 1800);
+      };
+      timer = window.setTimeout(tick, 1800);
+    };
+
+    // Static, complete state by default (no JS, reduced motion); plays once when first seen.
+    show(last, false);
+    root.classList.add('is-ready');
+    watch(root, (a) => {
+      active = a;
+      if (a && step < last) run(step);
+      if (!a) stop();
+    });
+    onceVisible(root, () => {
+      if (motionOn()) run(0);
+    }, 0.35);
+    root.querySelector('[data-ld-replay]')?.addEventListener('click', () => (motionOn() ? run(0) : show(0)));
+    root.querySelector('[data-ld-next]')?.addEventListener('click', () => {
+      stop();
+      show(step >= last ? 0 : step + 1);
+    });
+  });
+</script>

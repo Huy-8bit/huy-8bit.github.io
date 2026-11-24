@@ -1,0 +1,77 @@
+---
+// Real screenshots in a browser window, switched with tabs and enlarged in the lightbox.
+// Images are shown exactly as captured; captions only name what each screen is.
+import { Picture, getImage } from 'astro:assets';
+import Icon from './Icon.astro';
+import type { Shot } from '../data/projects';
+
+interface Props {
+  shots: Shot[];
+  id: string;
+  address: string;
+  tilt?: boolean;
+  sizes?: string;
+}
+const { shots, id, address, tilt = false, sizes = '(min-width: 1080px) 700px, 94vw' } = Astro.props;
+const full = await Promise.all(shots.map((s) => getImage({ src: s.image, width: 1440, format: 'webp' })));
+---
+<div class:list={['bg', { 'bg-tilt': tilt }]} data-gallery>
+  <div class="bg-window">
+    <div class="bg-bar">
+      <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="bg-address mono">{address}</span>
+      <button type="button" class="icon-btn bg-expand" data-lightbox={full[0].src} data-alt={shots[0].alt} data-caption={shots[0].caption} aria-haspopup="dialog" aria-label={`Enlarge screenshot: ${shots[0].alt}`} data-gallery-expand>
+        <Icon name="expand" size={15} />
+      </button>
+    </div>
+    <div class="bg-tabs" role="tablist" aria-label="Screenshots">
+      {shots.map((s, i) => (
+        <button type="button" role="tab" id={`${id}-tab-${i}`} aria-controls={`${id}-panel-${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-full={full[i].src} data-alt={s.alt} data-caption={s.caption}>
+          {s.caption}
+        </button>
+      ))}
+    </div>
+    <div class="bg-view">
+      {shots.map((s, i) => (
+        <div class="bg-panel" role="tabpanel" id={`${id}-panel-${i}`} aria-labelledby={`${id}-tab-${i}`} hidden={i !== 0}>
+          <Picture src={s.image} formats={['avif', 'webp']} fallbackFormat="webp" widths={[480, 720, 1080, 1440]} sizes={sizes} alt={s.alt} loading="lazy" decoding="async" />
+        </div>
+      ))}
+    </div>
+  </div>
+  <p class="bg-cap"><span data-gallery-caption>{shots[0].caption}</span></p>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((g) => {
+    const tabs = [...g.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const panels = [...g.querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+    const expand = g.querySelector<HTMLButtonElement>('[data-gallery-expand]')!;
+    const cap = g.querySelector<HTMLElement>('[data-gallery-caption]')!;
+    const select = (i: number, focus = false) => {
+      tabs.forEach((t, j) => {
+        t.setAttribute('aria-selected', String(i === j));
+        t.tabIndex = i === j ? 0 : -1;
+      });
+      panels.forEach((p, j) => (p.hidden = i !== j));
+      const t = tabs[i];
+      expand.dataset.lightbox = t.dataset.full;
+      expand.dataset.alt = t.dataset.alt;
+      expand.dataset.caption = t.dataset.caption;
+      expand.setAttribute('aria-label', `Enlarge screenshot: ${t.dataset.alt}`);
+      cap.textContent = t.dataset.caption ?? '';
+      if (focus) t.focus();
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => select(i));
+      t.addEventListener('keydown', (e) => {
+        const map: Record<string, number> = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 };
+        if (!(e.key in map)) return;
+        e.preventDefault();
+        select((map[e.key] + tabs.length) % tabs.length, true);
+      });
+    });
+    // Clicking the picture itself also enlarges it.
+    g.querySelector('.bg-view')?.addEventListener('click', () => expand.click());
+  });
+</script>

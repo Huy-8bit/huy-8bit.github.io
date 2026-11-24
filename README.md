@@ -2,8 +2,9 @@
 
 Personal portfolio of **Nguyen Gia Huy**, served at <https://huy-8bit.github.io/>.
 
-A static [Astro](https://astro.build) site with hand-written CSS and very little JavaScript (theme toggle, mobile menu,
-screenshot lightbox, scroll highlighting). Fonts are self-hosted: Geist for text and JetBrains Mono for labels and code.
+A static [Astro](https://astro.build) site: colourful, dark-first (with its own light palette), with interactive
+engineering visuals built from SVG, CSS, a small canvas and plain TypeScript. No UI framework, animation library or 3D
+engine; every page is complete static HTML and works without JavaScript. Fonts are self-hosted: Geist and JetBrains Mono.
 
 ## Develop
 
@@ -21,7 +22,11 @@ npm run test:links   # also fetches every external link (needs network; LinkedIn
 | [`src/data/cv.ts`](src/data/cv.ts) | Profile, experience, expertise, education and navigation. Facts come from the CV. |
 | [`src/data/projects.ts`](src/data/projects.ts) | LockLens, KeyShift and ExtendPad: home page blocks and case-study pages. Facts come from each project's repository. |
 | [`src/data/flows.ts`](src/data/flows.ts) | The flow-lane diagrams for each project. |
-| [`src/styles/global.css`](src/styles/global.css) | Design tokens (light and dark) and every component style. |
+| [`src/styles/tokens.css`](src/styles/tokens.css) | Colour (light and dark designed separately, plus a palette per project), type, spacing and motion tokens. |
+| [`src/styles/base.css`](src/styles/base.css), [`home.css`](src/styles/home.css), [`case.css`](src/styles/case.css) | Shared components and motion rules, the home page, the case studies. |
+| [`src/components/hero/`](src/components/hero/) | The hero: ambient layers and the illustrative engineering scene. |
+| [`src/components/demos/`](src/components/demos/) | Interactive project demos: LockLens blocking chain, KeyShift caching simulation, ExtendPad device stage. |
+| [`src/scripts/`](src/scripts/) | Site behaviour (reveals, count-ups, pointer light, section colours, scroll progress) and the motion gate. |
 | [`src/pages/index.astro`](src/pages/index.astro) | Home page. |
 | [`src/pages/projects/[slug].astro`](src/pages/projects/[slug].astro) | Case-study pages: `/projects/locklens/`, `/projects/keyshift/`, `/projects/extendpad/`. |
 | [`src/content/writing/`](src/content/writing/) | Technical articles (Markdown). See below. |
@@ -33,7 +38,17 @@ npm run test:links   # also fetches every external link (needs network; LinkedIn
 - Benchmark figures always carry their conditions, and simulations are labelled as simulations.
 - Personal projects are labelled as personal projects; nothing claims production use without evidence.
 - The phone number is not published. The Galaxy FinX entry stays at the level of Vault Core and smart contracts.
-- Screenshots must be real. ExtendPad has none yet, so it shows a diagram instead.
+- Screenshots must be real. ExtendPad has none yet, so it shows a stylized illustration, labelled as such.
+- Demos are labelled *Illustrative* or *Simulated*. The KeyShift demo is a browser simulation, not the SDK, and its
+  numbers are not measurements; real benchmark figures are shown separately with their conditions.
+- Count-ups only animate towards values already in the HTML (CV figures and documented benchmark results).
+
+### Motion
+
+Everything that moves on its own is gated by `data-motion` on `<html>`: `full` or `reduced`. The head script sets it
+from the visitor's saved choice or their `prefers-reduced-motion` setting, and the pause button in the header switches
+it for the whole site (and remembers it). Animations also pause when off screen and when the tab is hidden
+([`src/scripts/motion.ts`](src/scripts/motion.ts)). Page-to-page transitions use native cross-document View Transitions.
 
 ### Writing
 

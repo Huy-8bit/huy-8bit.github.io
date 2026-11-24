@@ -4,7 +4,8 @@ import type { GetStaticPaths } from 'astro';
 import Base from '../../layouts/Base.astro';
 import Icon from '../../components/Icon.astro';
 import Flow from '../../components/Flow.astro';
-import Shots from '../../components/Shots.astro';
+import Ambient from '../../components/hero/Ambient.astro';
+import BrowserGallery from '../../components/BrowserGallery.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
 import ProjectLinks from '../../components/ProjectLinks.astro';
 import { projects, type Project } from '../../data/projects';
@@ -22,6 +23,9 @@ const index = projects.indexOf(p);
 const next = projects[(index + 1) % projects.length];
 const flow = { keyshift: keyshiftFlow, locklens: locklensFlow, extendpad: extendpadFlow }[p.slug];
 const toc = p.sections.map((s) => ({ id: s.id, title: s.title }));
+// Wraps each number in a value with a count-up span; the final text is unchanged.
+const counted = (v: string) =>
+  v.replace(/\d+(?:\.\d+)?/g, (m) => `<span data-count="${m}" data-decimals="${m.includes('.') ? m.split('.')[1].length : 0}">${m}</span>`);
 
 const licenses: Record<string, string> = {
   MIT: 'https://opensource.org/license/mit',
@@ -55,14 +59,22 @@ const jsonLd = [
   },
 ];
 ---
-<Base title={`${p.name}: ${p.tagline.replace(/\.$/, '')} · ${profile.name}`} description={p.description} jsonLd={jsonLd} lightbox={!!p.shots}>
+<Base
+  title={`${p.name}: ${p.tagline.replace(/\.$/, '')} · ${profile.name}`}
+  description={p.description}
+  jsonLd={jsonLd}
+  lightbox={!!p.shots}
+  theme={`t-${p.slug}`}
+  zone={p.slug}
+>
   <main id="main">
-    <header class="cs-hero">
-      <div class="hero-bg" aria-hidden="true"></div>
-      <div class="container" style="position:relative">
+    <header class="cs-hero" data-zone={p.slug}>
+      <Ambient />
+      <div class="act-glow" aria-hidden="true"></div>
+      <div class="container">
         <a class="back" href={`${url()}#${p.slug}`}><Icon name="arrow-left" size={15} /> All work</a>
-        <p class="feature-meta label"><span>{p.area}</span><span>{p.kind}</span></p>
-        <h1>{p.name}</h1>
+        <p class="cs-meta label"><span class="act-num">{String(index + 1).padStart(2, '0')}</span><span>{p.area}</span><span class="cs-kind">· {p.kind}</span></p>
+        <h1 class="grad-text is-live" style={`view-transition-name: name-${p.slug}`}>{p.name}</h1>
         <p class="cs-tagline">{p.tagline}</p>
         <p class="cs-intro">{p.intro}</p>
         <ProjectLinks links={p.links} name={p.name} skipCase />
@@ -85,7 +97,7 @@ const jsonLd = [
 
       <div class="cs-main">
         {p.sections.map((s) => (
-          <section class="cs-section" id={s.id} aria-labelledby={`${s.id}-title`}>
+          <section class="cs-section" id={s.id} aria-labelledby={`${s.id}-title`} data-zone={p.slug}>
             <h2 id={`${s.id}-title`}>{s.title}</h2>
 
             {s.kind === 'text' && s.paragraphs.map((para) => <p class="cs-text" set:html={para} />)}
@@ -94,7 +106,7 @@ const jsonLd = [
               <>
                 {s.intro && <p class="cs-text" set:html={s.intro} />}
                 {s.diagram && <Flow flow={flow} />}
-                <ul class="cs-items">
+                <ul class="cs-items stagger">
                   {s.items.map((it) => (
                     <li><h3>{it.title}</h3><p set:html={it.body} /></li>
                   ))}
@@ -105,7 +117,7 @@ const jsonLd = [
             {s.kind === 'list' && (
               <>
                 {s.intro && <p class="cs-text" set:html={s.intro} />}
-                <ul class="points">{s.points.map((pt) => <li set:html={pt} />)}</ul>
+                <ul class="act-points">{s.points.map((pt) => <li set:html={pt} />)}</ul>
                 {s.footer && <p class="cs-footer-note">{s.footer}</p>}
               </>
             )}
@@ -130,14 +142,14 @@ const jsonLd = [
             {s.kind === 'code' && (
               <>
                 {s.intro && <p class="cs-text" set:html={s.intro} />}
-                <CodeBlock code={s.code} lang={s.lang} title={s.lang === 'go' ? 'Go' : 'Terminal'} />
+                <CodeBlock code={s.code} lang={s.lang} title={s.lang === 'go' ? 'Go' : 'Terminal'} id={`code-${s.id}`} />
               </>
             )}
 
             {s.kind === 'shots' && p.shots && (
               <>
                 {s.intro && <p class="cs-text">{s.intro}</p>}
-                <Shots shots={p.shots} class="shots-4" sizes={['(min-width: 1080px) 420px, (min-width: 640px) 46vw, 92vw', '(min-width: 1080px) 420px, (min-width: 640px) 46vw, 92vw']} />
+                <BrowserGallery shots={p.shots} id={`${p.slug}-shots`} address="127.0.0.1:8080 · LockLens demo lab" sizes="(min-width: 1080px) 860px, 94vw" />
               </>
             )}
 
@@ -148,12 +160,13 @@ const jsonLd = [
                   <dl class="bench-env" aria-label="Benchmark environment">
                     {s.environment.map((f) => <div><dt class="label">{f.label}</dt><dd>{f.value}</dd></div>)}
                   </dl>
-                  <ul class="bench-results" aria-label="Benchmark results">
-                    {s.results.map((r) => (
+                  <ul class="bench-results bench-card reveal" aria-label="Benchmark results">
+                    {s.results.map((r, i) => (
                       <li>
-                        <span class="metric-value">{r.value}</span>
+                        <span class="metric-value" set:html={counted(r.value)} />
                         <span class="metric-label">{r.label}</span>
                         <span class="metric-note">{r.note}</span>
+                        {i === 0 && <div class="range-track" aria-hidden="true"><span class="range-fill" style="--from:50%;--to:86%"></span></div>}
                       </li>
                     ))}
                   </ul>
@@ -166,13 +179,14 @@ const jsonLd = [
         ))}
 
         <nav class="cs-next" aria-label="More projects">
-          <a href={url(`projects/${next.slug}/`)}>
+          <a href={url(`projects/${next.slug}/`)} class={`t-${next.slug}`}>
             <span class="label">Next project</span>
-            <strong>{next.name} <Icon name="arrow-right" size={20} /></strong>
+            <strong class="grad-text">{next.name}</strong>
+            <small>{next.tagline}</small>
           </a>
-          <a href={`${url()}#work`}>
+          <a href={`${url()}#work`} class="cs-back">
             <span class="label">Back to</span>
-            <strong>All work</strong>
+            <strong>All work <Icon name="arrow-right" size={20} /></strong>
           </a>
         </nav>
       </div>
@@ -181,7 +195,7 @@ const jsonLd = [
 </Base>
 
 <script>
-  // Mark the table-of-contents entry for the section in view.
+  // Mark the contents entry for the section in view.
   const links = new Map<string, HTMLAnchorElement>();
   document.querySelectorAll<HTMLAnchorElement>('[data-toc]').forEach((a) => links.set(a.dataset.toc!, a));
   if (links.size && 'IntersectionObserver' in window) {

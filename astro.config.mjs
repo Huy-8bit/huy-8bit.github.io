@@ -10,6 +10,6 @@ export default defineConfig({
   integrations: [sitemap({ filter: (page) => !page.includes('/404') })],
   build: { format: 'directory' },
   markdown: {
-    shikiConfig: { themes: { light: 'github-light', dark: 'github-dark-dimmed' }, defaultColor: false },
+    shikiConfig: { themes: { light: 'github-light', dark: 'github-dark-default' }, defaultColor: false },
   },
 });

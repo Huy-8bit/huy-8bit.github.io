@@ -1,0 +1,20 @@
+---
+// Compact career overview for the hero: every role, oldest to newest.
+import { experience } from '../../data/cv';
+const roles = [...experience].reverse();
+---
+<div class="career-strip t-career">
+  <p class="label cs-title">Career</p>
+  <ol class="cstrip stagger" aria-label="Career overview, oldest to newest">
+    {roles.map((r) => (
+      <li class:list={['cstop', { 'is-now': !r.endISO }]}>
+        <a href="#experience">
+          <span class="cstop-dot" aria-hidden="true"></span>
+          <span class="cstop-when label">{r.start.split(' ')[1]}{r.endISO ? ` – ${r.end.split(' ')[1]}` : ' – now'}</span>
+          <span class="cstop-co">{r.company}</span>
+          <span class="cstop-title">{r.title}</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+</div>

@@ -1,0 +1,104 @@
+---
+// Atmosphere behind the hero and other headline areas: slow mesh gradients, a fine grid,
+// grain, a light beam, a pointer spotlight and (optionally) a few drifting particles.
+// Everything here is decorative and hidden from assistive technology.
+interface Props {
+  particles?: boolean;
+  beam?: boolean;
+  class?: string;
+}
+const { particles = false, beam = false, class: cls } = Astro.props;
+---
+<div class:list={['ambient', cls]} aria-hidden="true" data-ambient data-anim>
+  <div class="mesh m1"></div>
+  <div class="mesh m2"></div>
+  <div class="mesh m3"></div>
+  {beam && <div class="beam"></div>}
+  <div class="grid"></div>
+  <div class="spot"></div>
+  {particles && <canvas data-particles></canvas>}
+  <div class="grain"></div>
+</div>
+
+<script>
+  import { watch } from '../../scripts/motion';
+
+  // Pointer spotlight: the closest positioned section drives --sx/--sy on its ambient layer.
+  document.querySelectorAll<HTMLElement>('[data-ambient]').forEach((amb) => {
+    const host = amb.parentElement;
+    if (!host || !window.matchMedia('(pointer: fine)').matches) return;
+    let raf = 0;
+    host.addEventListener(
+      'pointermove',
+      (e) => {
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          const r = host.getBoundingClientRect();
+          amb.style.setProperty('--sx', `${e.clientX - r.left}px`);
+          amb.style.setProperty('--sy', `${e.clientY - r.top}px`);
+          amb.classList.add('has-pointer');
+        });
+      },
+      { passive: true },
+    );
+    host.addEventListener('pointerleave', () => amb.classList.remove('has-pointer'));
+  });
+
+  // Particles: a light canvas loop that only runs while visible and while motion is on.
+  document.querySelectorAll<HTMLCanvasElement>('[data-particles]').forEach((canvas) => {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const lowPower = (navigator.hardwareConcurrency ?? 8) <= 4 || (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+    let w = 0;
+    let h = 0;
+    let dpr = 1;
+    let parts: { x: number; y: number; r: number; vy: number; vx: number; a: number }[] = [];
+    let colour = '#22d3ee';
+    const readColour = () => (colour = getComputedStyle(document.documentElement).getPropertyValue('--g3').trim() || colour);
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      w = canvas.clientWidth;
+      h = canvas.clientHeight;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      const count = Math.min(lowPower ? 24 : 56, Math.round((w * h) / 22000));
+      parts = Array.from({ length: count }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 1.4 + 0.4,
+        vy: -(Math.random() * 0.12 + 0.03),
+        vx: (Math.random() - 0.5) * 0.06,
+        a: Math.random() * 0.5 + 0.2,
+      }));
+    };
+    let raf = 0;
+    const frame = () => {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = colour;
+      for (const p of parts) {
+        p.y += p.vy;
+        p.x += p.vx;
+        if (p.y < -4) {
+          p.y = h + 4;
+          p.x = Math.random() * w;
+        }
+        ctx.globalAlpha = p.a;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    readColour();
+    resize();
+    new ResizeObserver(resize).observe(canvas);
+    new MutationObserver(readColour).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    watch(canvas, (active) => {
+      cancelAnimationFrame(raf);
+      if (active) raf = requestAnimationFrame(frame);
+      else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+  });
+</script>

@@ -1,23 +1,25 @@
 ---
-// Flow lanes: each lane is one path through a system, read left to right
-// (top to bottom when the figure is narrow).
+// Flow lanes: each lane is one path through a system, read left to right (top to bottom when
+// narrow). Small packets travel each arrow; the figure has its own pause button.
+import Icon from './Icon.astro';
 import type { Flow } from '../data/flows';
 
 interface Props {
   flow: Flow;
   caption?: string;
+  animated?: boolean;
 }
-const { flow, caption } = Astro.props;
+const { flow, caption, animated = true } = Astro.props;
 ---
-<figure class="flow-fig" aria-labelledby={`flow-${flow.id}-cap`}>
+<figure class:list={['flow-fig', { 'is-animated': animated }]} aria-labelledby={`flow-${flow.id}-cap`} data-anim data-flow>
   <div class="flow ticks">
-    {flow.lanes.map((lane) => (
-      <div class:list={['lane', lane.tone && `is-${lane.tone}`]}>
+    {flow.lanes.map((lane, l) => (
+      <div class:list={['lane', lane.tone && `is-${lane.tone}`]} style={`--l:${l}`}>
         <p class="lane-label label">{lane.label}{lane.note && <small>{lane.note}</small>}</p>
         <ol class="lane-nodes">
           {lane.nodes.map((n, i) => (
             <>
-              {i > 0 && <li class="arrow" aria-hidden="true" />}
+              {i > 0 && <li class="arrow" aria-hidden="true" style={`--a:${i}`}><i class="pkt"></i></li>}
               <li class:list={['node', { 'is-accent': n.accent, 'is-dashed': n.dashed }]}>
                 <span class="node-title">{n.code ? <code>{n.title}</code> : n.title}</span>
                 {n.sub && <span class="node-sub">{n.sub}</span>}
@@ -31,6 +33,22 @@ const { flow, caption } = Astro.props;
   <figcaption id={`flow-${flow.id}-cap`} class="flow-cap">
     <span>{caption ?? flow.title}</span>
     {flow.legend?.accent && <span class="flow-key"><i class="k-accent" aria-hidden="true"></i>{flow.legend.accent}</span>}
-    {flow.legend?.quiet && <span class="flow-key"><i aria-hidden="true" style="border-top-style:dashed"></i>{flow.legend.quiet}</span>}
+    {flow.legend?.quiet && <span class="flow-key"><i class="k-quiet" aria-hidden="true"></i>{flow.legend.quiet}</span>}
+    {animated && (
+      <button type="button" class="flow-pause" aria-pressed="false" data-flow-pause>
+        <Icon name="pause" size={13} class="i-pause" /><Icon name="play" size={13} class="i-play" /><span>Pause animation</span>
+      </button>
+    )}
   </figcaption>
 </figure>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-flow]').forEach((fig) => {
+    const btn = fig.querySelector<HTMLButtonElement>('[data-flow-pause]');
+    btn?.addEventListener('click', () => {
+      const paused = fig.classList.toggle('is-paused');
+      btn.setAttribute('aria-pressed', String(paused));
+      btn.querySelector('span')!.textContent = paused ? 'Play animation' : 'Pause animation';
+    });
+  });
+</script>

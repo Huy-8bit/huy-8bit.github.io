@@ -33,6 +33,8 @@ export type Role = {
   domain: string;
   points: string[];
   stack: string[];
+  /** Figures from the CV, shown as highlights. Galaxy FinX deliberately has none. */
+  metrics?: { value: number; prefix?: string; suffix?: string; label: string }[];
 };
 
 export const experience: Role[] = [
@@ -63,6 +65,7 @@ export const experience: Role[] = [
       'Maintained the infrastructure with Terraform and AWS SAM, and monitored pipeline health and failures with CloudWatch and Datadog.',
     ],
     stack: ['AWS', 'OpenSearch', 'Terraform', 'AWS SAM', 'CloudWatch', 'Datadog'],
+    metrics: [{ value: 150, prefix: '+', suffix: '%', label: 'batch processing throughput after the redesign' }],
   },
   {
     company: 'VNPAY',
@@ -79,6 +82,12 @@ export const experience: Role[] = [
       'Automated about 80% of data-center provisioning and infrastructure configuration.',
     ],
     stack: ['OpenStack', 'Cluster API', 'Kubernetes', 'Keycloak', 'Kong'],
+    metrics: [
+      { value: 50, suffix: '+', label: 'production Kubernetes clusters' },
+      { value: 20, suffix: '+', label: 'customer organizations, isolated' },
+      { value: 100, suffix: '+', label: 'microservices behind Kong' },
+      { value: 80, prefix: '~', suffix: '%', label: 'of provisioning automated' },
+    ],
   },
   {
     company: 'EsolLabs',
@@ -94,11 +103,17 @@ export const experience: Role[] = [
       'Integrated backend services with 5+ blockchain networks, including Ethereum, BSC, Polygon, Aptos and Sui.',
     ],
     stack: ['Solidity', 'Move', 'Event-driven services'],
+    metrics: [
+      { value: 15, suffix: '+', label: 'smart contracts developed and reviewed' },
+      { value: 5, suffix: '+', label: 'blockchain networks integrated' },
+    ],
   },
 ];
 
 export type Expertise = {
   area: string;
+  tone: 'indigo' | 'cyan' | 'violet' | 'blue' | 'emerald' | 'warm' | 'pink';
+  glyph: 'code' | 'db' | 'mesh' | 'cloud' | 'pulse' | 'bank' | 'pipe';
   /** The kind of problems this covers, in one line. */
   about: string;
   tools: string[];
@@ -108,7 +123,9 @@ export type Expertise = {
 
 export const expertise: Expertise[] = [
   {
-    area: 'Languages and backend',
+    area: 'Backend engineering',
+    tone: 'indigo',
+    glyph: 'code',
     about: 'Services, APIs and command-line tools.',
     tools: ['Go', 'Python', 'Java', 'gRPC', 'REST', 'Spring Boot', 'FastAPI'],
     evidence: [
@@ -117,7 +134,9 @@ export const expertise: Expertise[] = [
     ],
   },
   {
-    area: 'Databases and caching',
+    area: 'Database and caching',
+    tone: 'cyan',
+    glyph: 'db',
     about: 'Relational, document, search and cache stores, and how to observe them.',
     tools: ['PostgreSQL', 'TimescaleDB', 'Redis', 'MongoDB', 'OpenSearch', 'Elasticsearch', 'ClickHouse'],
     evidence: [
@@ -127,7 +146,9 @@ export const expertise: Expertise[] = [
     ],
   },
   {
-    area: 'Distributed systems and messaging',
+    area: 'Distributed systems',
+    tone: 'violet',
+    glyph: 'mesh',
     about: 'Event-driven services, queues, and coordination across many instances.',
     tools: ['Kafka', 'RabbitMQ', 'Event-driven architecture'],
     evidence: [
@@ -136,7 +157,9 @@ export const expertise: Expertise[] = [
     ],
   },
   {
-    area: 'Cloud and infrastructure',
+    area: 'Cloud infrastructure',
+    tone: 'blue',
+    glyph: 'cloud',
     about: 'Private and public cloud, Kubernetes, and infrastructure as code.',
     tools: ['AWS', 'Kubernetes', 'OpenStack', 'Docker', 'Terraform', 'Consul', 'Vault'],
     evidence: [
@@ -145,7 +168,9 @@ export const expertise: Expertise[] = [
     ],
   },
   {
-    area: 'Observability and reliability',
+    area: 'Observability',
+    tone: 'emerald',
+    glyph: 'pulse',
     about: 'Metrics, traces, logs and dashboards, and acting on what they show.',
     tools: ['OpenTelemetry', 'Prometheus', 'Grafana', 'ELK', 'CloudWatch', 'Datadog'],
     evidence: [
@@ -156,12 +181,16 @@ export const expertise: Expertise[] = [
   },
   {
     area: 'Core banking',
+    tone: 'warm',
+    glyph: 'bank',
     about: 'Banking products built as smart contracts on a core banking platform.',
     tools: ['Thought Machine Vault Core', 'Smart contracts'],
     evidence: [{ label: 'Galaxy FinX', href: '#experience' }],
   },
   {
-    area: 'Delivery',
+    area: 'Software delivery',
+    tone: 'pink',
+    glyph: 'pipe',
     about: 'Build, test and deployment pipelines.',
     tools: ['Git', 'GitHub Actions', 'Jenkins', 'ArgoCD'],
     evidence: [{ label: 'CI for LockLens and KeyShift', href: '#work' }],

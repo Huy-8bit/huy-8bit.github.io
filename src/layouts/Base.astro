@@ -1,7 +1,10 @@
 ---
 import '@fontsource-variable/geist/wght.css';
 import '@fontsource-variable/jetbrains-mono/wght.css';
-import '../styles/global.css';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/home.css';
+import '../styles/case.css';
 import geistLatin from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -22,6 +25,10 @@ interface Props {
   /** Include the screenshot lightbox. */
   lightbox?: boolean;
   publishedTime?: string;
+  /** Theme class on <body> (t-brand, t-locklens, …). */
+  theme?: string;
+  /** Initial backdrop zone. */
+  zone?: string;
 }
 const {
   title = `${profile.name}, ${profile.role}`,
@@ -32,13 +39,15 @@ const {
   noindex = false,
   lightbox = false,
   publishedTime,
+  theme = 't-brand',
+  zone,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 const ogImage = new URL(url('og.png'), Astro.site).toString();
 const hasRss = (await getPosts()).length > 0;
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-zone={zone}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -48,8 +57,8 @@ const hasRss = (await getPosts()).length > 0;
     {noindex && <meta name="robots" content="noindex" />}
     <meta name="author" content={profile.name} />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f5f7fc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#060816" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/svg+xml" href={url('favicon.svg')} />
     <link rel="sitemap" href={url('sitemap-index.xml')} />
     <link rel="preload" href={geistLatin} as="font" type="font/woff2" crossorigin />
@@ -69,45 +78,33 @@ const hasRss = (await getPosts()).length > 0;
     <meta name="twitter:card" content="summary_large_image" />
     {jsonLd.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data)} />)}
 
-    <!-- Theme before first paint: a saved choice wins, otherwise the system preference. -->
+    <!-- Before first paint: theme and motion. A saved choice wins, otherwise the system setting. -->
     <script is:inline>
       (function () {
         var d = document.documentElement;
         d.classList.add('js');
-        var t = null;
+        var t = null,
+          m = null;
         try {
           t = localStorage.getItem('theme');
+          m = localStorage.getItem('motion');
         } catch (e) {}
-        if (t !== 'light' && t !== 'dark') t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (m !== 'reduced' && m !== 'full') m = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'reduced' : 'full';
         d.setAttribute('data-theme', t);
+        d.setAttribute('data-motion', m);
       })();
     </script>
   </head>
-  <body>
+  <body class={theme}>
+    <div class="backdrop" aria-hidden="true"></div>
     <a class="skip" href="#main">Skip to content</a>
     <Header home={home} />
     <slot />
     <Footer />
     {lightbox && <Lightbox />}
     <script>
-      // Gentle entrance for blocks marked .reveal; everything shows at once with reduced motion.
-      const items = document.querySelectorAll<HTMLElement>('.reveal');
-      if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        items.forEach((el) => el.classList.add('in'));
-      } else {
-        const io = new IntersectionObserver(
-          (entries) => {
-            for (const e of entries) {
-              if (e.isIntersecting) {
-                e.target.classList.add('in');
-                io.unobserve(e.target);
-              }
-            }
-          },
-          { rootMargin: '0px 0px -6% 0px', threshold: 0.08 },
-        );
-        items.forEach((el) => io.observe(el));
-      }
+      import '../scripts/site';
     </script>
   </body>
 </html>

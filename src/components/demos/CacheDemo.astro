@@ -1,0 +1,388 @@
+---
+// A small simulation of KeyShift's idea, run in the browser. It is not the KeyShift SDK and its
+// numbers are not measurements; the panel says so. Real benchmark figures are shown separately.
+import Icon from '../Icon.astro';
+
+const keys = ['product:123', 'stock:7', 'user:42', 'cart:9', 'page:1', 'tag:3', 'list:8', 'item:5'];
+const inst = [0, 1, 2].map((i) => ({ i, y: 24 + i * 102 }));
+const BAR_W = 58;
+const BAR_GAP = 17;
+const BASE = 424;
+const MAXH = 70;
+---
+<div class="demo cd lit" data-cachedemo data-keys={JSON.stringify(keys)} data-anim>
+  <div class="demo-head">
+    <p class="demo-title"><span class="label">Interactive</span> Hot keys, admitted per instance</p>
+    <span class="demo-badge">Simulated</span>
+  </div>
+
+  <div class="cd-body">
+    <div class="cd-stage" data-scroll-x data-label="Caching simulation diagram, scrolls sideways">
+      <svg class="cd-svg" viewBox="0 0 640 448" aria-hidden="true">
+        <defs>
+          <linearGradient id="cd-bar" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" style="stop-color:var(--ks-1)" />
+            <stop offset="1" style="stop-color:var(--ks-3)" />
+          </linearGradient>
+        </defs>
+
+        <!-- links from each instance to Redis -->
+        {inst.map(({ y }) => (
+          <path class="cd-link" d={`M118 ${y + 54} C 300 ${y + 54}, 330 200, 470 200`} />
+        ))}
+        <path class="cd-link cd-link-w" d="M545 76 V 126" />
+
+        {inst.map(({ i, y }) => (
+          <g class="cd-inst" data-inst={i}>
+            <rect class="cd-box" x="20" y={y} width="252" height="88" rx="14" />
+            <text class="cd-name" x="36" y={y + 22}>instance {i + 1}</text>
+            <rect class="cd-code" x="36" y={y + 34} width="82" height="40" rx="8" />
+            <text class="cd-small" x="77" y={y + 58} text-anchor="middle">your code</text>
+            <rect class="cd-cache" x="132" y={y + 30} width="126" height="48" rx="9" />
+            <text class="cd-small cd-dim" x="142" y={y + 45}>local cache</text>
+            <g class="cd-chip" data-chip={i}>
+              <rect x="140" y={y + 51} width="110" height="20" rx="6" />
+              <text x="148" y={y + 65}>empty</text>
+            </g>
+          </g>
+        ))}
+
+        <g class="cd-writer">
+          <rect class="cd-box" x="470" y="20" width="150" height="56" rx="12" />
+          <text class="cd-name" x="486" y="42">another service</text>
+          <text class="cd-small cd-dim" x="486" y="62">writes keys</text>
+        </g>
+
+        <g class="cd-redis">
+          <rect class="cd-box cd-box-redis" x="470" y="126" width="150" height="150" rx="16" />
+          {[0, 1, 2].map((k) => <path class={`cd-rh cd-rh-${k}`} d={`M545 ${150 + k * 14} l34 13 l-34 13 l-34 -13 z`} />)}
+          <text class="cd-name" x="545" y="224" text-anchor="middle">Redis</text>
+          <text class="cd-small cd-dim" x="545" y="244" text-anchor="middle">client tracking</text>
+          <text class="cd-small" x="545" y="262" text-anchor="middle" data-tracked>tracked keys: 0</text>
+        </g>
+
+        <!-- key popularity: reads per key in the last window, all instances -->
+        <text class="cd-small cd-dim" x="20" y="342">key popularity, last window</text>
+        <line class="cd-threshold" x1="20" x2="620" y1={BASE - MAXH * 0.5} y2={BASE - MAXH * 0.5} />
+        <text class="cd-small cd-dim" x="620" y={BASE - MAXH * 0.5 - 6} text-anchor="end">admission threshold</text>
+        {keys.map((k, j) => (
+          <g class="cd-barg" data-bar={j}>
+            <rect class="cd-bar-bg" x={20 + j * (BAR_W + BAR_GAP)} y={BASE - MAXH} width={BAR_W} height={MAXH} rx="5" />
+            <rect class="cd-bar" x={20 + j * (BAR_W + BAR_GAP)} y={BASE - MAXH} width={BAR_W} height={MAXH} rx="5" />
+            <text class="cd-small cd-key" x={20 + j * (BAR_W + BAR_GAP) + BAR_W / 2} y="442" text-anchor="middle">{k}</text>
+          </g>
+        ))}
+        <g class="cd-packets" data-packets></g>
+      </svg>
+      <p class="scroll-hint" aria-hidden="true">Swipe to see the whole diagram →</p>
+    </div>
+
+    <div class="cd-side">
+      <dl class="cd-stats" aria-label="Simulated counters">
+        <div><dt class="label">Reads reaching Redis</dt><dd><span data-stat="redis">0</span><small> / s</small></dd></div>
+        <div><dt class="label">Served from local memory</dt><dd><span data-stat="local">0</span><small>%</small></dd></div>
+        <div><dt class="label">Invalidations</dt><dd><span data-stat="inval">0</span></dd></div>
+      </dl>
+
+      <div class="cd-controls" role="group" aria-label="Simulation controls">
+        <button type="button" class="btn btn-primary btn-sm" data-cd-play aria-pressed="false">
+          <Icon name="play" size={14} class="i-play" /><Icon name="pause" size={14} class="i-pause" /><span data-cd-play-label>Play</span>
+        </button>
+        <button type="button" class="cd-switch" role="switch" aria-checked="true" data-cd-cache>
+          <span class="cd-switch-track" aria-hidden="true"><span></span></span> Local caching
+        </button>
+        <fieldset class="cd-seg">
+          <legend class="label">Request pattern</legend>
+          <label><input type="radio" name="cd-pattern" value="hot" checked /> <span>One hot key</span></label>
+          <label><input type="radio" name="cd-pattern" value="uniform" /> <span>Uniform</span></label>
+        </fieldset>
+        <div class="cd-row">
+          <button type="button" class="btn btn-secondary btn-sm" data-cd-write><Icon name="pen" size={14} /> Write product:123</button>
+          <button type="button" class="btn btn-quiet btn-sm" data-cd-reset><Icon name="replay" size={14} /> Reset</button>
+        </div>
+      </div>
+
+      <ol class="cd-legend">
+        <li><i class="k-hit" aria-hidden="true"></i>local hit, no network</li>
+        <li><i class="k-redis" aria-hidden="true"></i>read goes to Redis</li>
+        <li><i class="k-inval" aria-hidden="true"></i>invalidation from Redis</li>
+      </ol>
+    </div>
+  </div>
+
+  <p class="sr-only" aria-live="polite" data-cd-live></p>
+</div>
+
+<script>
+  import { motionOn, watch, onceVisible } from '../../scripts/motion';
+
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  type Inst = { counts: number[]; streak: number[]; admitted: Set<number>; cache: Set<number> };
+
+  document.querySelectorAll<HTMLElement>('[data-cachedemo]').forEach((root) => {
+    const keys: string[] = JSON.parse(root.dataset.keys!);
+    const layer = root.querySelector<SVGGElement>('[data-packets]')!;
+    const playBtn = root.querySelector<HTMLButtonElement>('[data-cd-play]')!;
+    const playLabel = root.querySelector<HTMLElement>('[data-cd-play-label]')!;
+    const cacheBtn = root.querySelector<HTMLButtonElement>('[data-cd-cache]')!;
+    const live = root.querySelector<HTMLElement>('[data-cd-live]')!;
+    const stat = (k: string) => root.querySelector<HTMLElement>(`[data-stat="${k}"]`)!;
+    const chips = [...root.querySelectorAll<SVGGElement>('[data-chip]')];
+    const bars = [...root.querySelectorAll<SVGRectElement>('.cd-bar')];
+    const barGroups = [...root.querySelectorAll<SVGGElement>('.cd-barg')];
+    const tracked = root.querySelector<SVGTextElement>('[data-tracked]')!;
+
+    const WEIGHTS = { hot: [0.42, 0.12, 0.08, 0.08, 0.08, 0.08, 0.07, 0.07], uniform: Array(8).fill(1 / 8) };
+    const WINDOW = 2400; // ms per detection window in the simulation
+    const ADMIT_SHARE = 0.25; // share of reads needed to qualify
+    const EXIT_SHARE = 0.1;
+    const instY = (i: number) => 24 + i * 102;
+
+    let pattern: keyof typeof WEIGHTS = 'hot';
+    let caching = true;
+    let running = false;
+    let visible = false;
+    let insts: Inst[] = [];
+    let windowTotals: number[] = [];
+    let log: { t: number; redis: boolean }[] = [];
+    let invalidations = 0;
+    let readTimer = 0;
+    let windowTimer = 0;
+    let statTimer = 0;
+    let lastSay = 0;
+
+    const say = (msg: string) => {
+      const now = performance.now();
+      if (now - lastSay < 1500) return;
+      lastSay = now;
+      live.textContent = msg;
+    };
+    const pick = () => {
+      const w = WEIGHTS[pattern];
+      let r = Math.random();
+      for (let k = 0; k < w.length; k++) if ((r -= w[k]) <= 0) return k;
+      return w.length - 1;
+    };
+
+    const reset = () => {
+      insts = [0, 1, 2].map(() => ({ counts: Array(8).fill(0), streak: Array(8).fill(0), admitted: new Set(), cache: new Set() }));
+      windowTotals = Array(8).fill(0);
+      log = [];
+      invalidations = 0;
+      layer.replaceChildren();
+      render();
+      renderBars(Array(8).fill(0));
+    };
+
+    // Packets: a dot moved along straight segments with the Web Animations API.
+    const packet = (pts: [number, number][], cls: string, dur: number, done?: () => void) => {
+      if (!motionOn() || layer.childElementCount > 48) return done?.();
+      const c = document.createElementNS(SVGNS, 'circle');
+      c.setAttribute('r', cls === 'p-inval' ? '4.5' : '4');
+      c.setAttribute('class', `cd-p ${cls}`);
+      layer.append(c);
+      const anim = c.animate(
+        pts.map(([x, y], i) => ({ transform: `translate(${x}px, ${y}px)`, opacity: i === 0 || i === pts.length - 1 ? 0.2 : 1 })),
+        { duration: dur, easing: 'cubic-bezier(.4,0,.2,1)' },
+      );
+      anim.onfinish = () => {
+        c.remove();
+        done?.();
+      };
+    };
+    const toRedis = (i: number): [number, number][] => {
+      const y = instY(i) + 54;
+      return [
+        [118, y],
+        [300, y + (200 - y) * 0.25],
+        [400, 200 - (200 - y) * 0.1],
+        [470, 200],
+      ];
+    };
+
+    const read = (i: number) => {
+      const k = pick();
+      const st = insts[i];
+      st.counts[k]++;
+      windowTotals[k]++;
+      const y = instY(i);
+      if (caching && st.admitted.has(k)) {
+        if (st.cache.has(k)) {
+          log.push({ t: performance.now(), redis: false });
+          packet([[118, y + 54], [140, y + 61], [118, y + 54]], 'p-hit', 420);
+          return;
+        }
+        // Miss on an admitted key: fetch from Redis, then keep it locally.
+        log.push({ t: performance.now(), redis: true });
+        const path = toRedis(i);
+        packet([...path, ...path.slice(0, -1).reverse()], 'p-redis', 1500, () => {
+          if (caching && st.admitted.has(k)) {
+            st.cache.add(k);
+            render();
+          }
+        });
+        if (!motionOn()) {
+          st.cache.add(k);
+          render();
+        }
+        return;
+      }
+      log.push({ t: performance.now(), redis: true });
+      const path = toRedis(i);
+      packet([...path, ...path.slice(0, -1).reverse()], 'p-redis', 1500);
+    };
+
+    // Every window: score keys per instance; admit after two qualifying windows, demote when cold.
+    const closeWindow = () => {
+      insts.forEach((st, i) => {
+        const total = st.counts.reduce((a, b) => a + b, 0) || 1;
+        st.counts.forEach((c, k) => {
+          const share = c / total;
+          if (!caching) return;
+          if (st.admitted.has(k)) {
+            if (share < EXIT_SHARE) {
+              st.streak[k]--;
+              if (st.streak[k] <= -2) {
+                st.admitted.delete(k);
+                st.cache.delete(k);
+                st.streak[k] = 0;
+              }
+            } else st.streak[k] = 0;
+          } else if (share >= ADMIT_SHARE) {
+            st.streak[k]++;
+            if (st.streak[k] >= 2) {
+              st.admitted.add(k);
+              st.streak[k] = 0;
+              say(`${keys[k]} admitted on instance ${i + 1}.`);
+            }
+          } else st.streak[k] = 0;
+        });
+        st.counts = Array(8).fill(0);
+      });
+      renderBars(windowTotals);
+      windowTotals = Array(8).fill(0);
+      render();
+    };
+
+    const write = () => {
+      const k = 0;
+      const done = () => {
+        let dropped = 0;
+        insts.forEach((st, i) => {
+          if (!st.cache.has(k)) return;
+          dropped++;
+          const y = instY(i);
+          packet([[470, 200], [400, 200 - (200 - y - 54) * 0.1], [300, y + 54 + (200 - y - 54) * 0.25], [250, y + 61]], 'p-inval', 900, () => {
+            st.cache.delete(k);
+            invalidations++;
+            stat('inval').textContent = String(invalidations);
+            flash(i);
+            render();
+          });
+          if (!motionOn()) {
+            st.cache.delete(k);
+            invalidations++;
+            render();
+          }
+        });
+        say(dropped ? `Write to ${keys[k]}: Redis invalidated ${dropped} local ${dropped === 1 ? 'copy' : 'copies'}.` : `Write to ${keys[k]}: no local copies to invalidate.`);
+      };
+      packet([[545, 76], [545, 126]], 'p-write', 500, done);
+    };
+    const flash = (i: number) => {
+      chips[i].classList.remove('is-flash');
+      void chips[i].getBoundingClientRect();
+      chips[i].classList.add('is-flash');
+    };
+
+    const render = () => {
+      insts.forEach((st, i) => {
+        const chip = chips[i];
+        const text = chip.querySelector('text')!;
+        const k = [...st.cache][0] ?? [...st.admitted][0];
+        chip.classList.toggle('is-admitted', st.admitted.size > 0);
+        chip.classList.toggle('is-cached', st.cache.size > 0);
+        text.textContent = k === undefined ? (caching ? 'nothing admitted' : 'caching off') : `${keys[k]}${st.cache.has(k) ? '' : ' (miss)'}`;
+      });
+      const trackedKeys = new Set<number>();
+      insts.forEach((st) => st.cache.forEach((k) => trackedKeys.add(k)));
+      tracked.textContent = `tracked keys: ${trackedKeys.size}`;
+      const admittedAnywhere = new Set<number>();
+      insts.forEach((st) => st.admitted.forEach((k) => admittedAnywhere.add(k)));
+      barGroups.forEach((g, k) => g.classList.toggle('is-admitted', admittedAnywhere.has(k)));
+    };
+    const renderBars = (totals: number[]) => {
+      const sum = totals.reduce((a, b) => a + b, 0) || 1;
+      bars.forEach((b, k) => b.style.transform = `scaleY(${Math.min(1, totals[k] / sum / 0.5)})`);
+    };
+    const renderStats = () => {
+      const now = performance.now();
+      log = log.filter((e) => now - e.t < 5000);
+      const span = Math.min(5, Math.max(1, (now - (log[0]?.t ?? now)) / 1000));
+      const redis = log.filter((e) => e.redis).length;
+      stat('redis').textContent = (redis / span).toFixed(1);
+      stat('local').textContent = log.length ? String(Math.round(((log.length - redis) / log.length) * 100)) : '0';
+      stat('inval').textContent = String(invalidations);
+    };
+
+    const start = () => {
+      stop();
+      let next = 0;
+      readTimer = window.setInterval(() => {
+        read(next);
+        next = (next + 1) % 3;
+      }, 110);
+      windowTimer = window.setInterval(closeWindow, WINDOW);
+      statTimer = window.setInterval(renderStats, 500);
+    };
+    const stop = () => {
+      window.clearInterval(readTimer);
+      window.clearInterval(windowTimer);
+      window.clearInterval(statTimer);
+    };
+    const sync = () => {
+      const on = running && visible;
+      on ? start() : stop();
+      root.classList.toggle('is-running', running);
+      playBtn.setAttribute('aria-pressed', String(running));
+      playLabel.textContent = running ? 'Pause' : 'Play';
+    };
+
+    reset();
+    root.classList.add('is-ready');
+    // Runs only while on screen, the tab is visible and motion is on; paused otherwise.
+    watch(root, (a) => {
+      visible = a || (running && !motionOn() && !document.hidden);
+      sync();
+    });
+    onceVisible(root, () => {
+      if (motionOn()) {
+        running = true;
+        sync();
+      }
+    }, 0.3);
+    playBtn.addEventListener('click', () => {
+      running = !running;
+      if (running && !motionOn()) visible = true;
+      sync();
+    });
+    cacheBtn.addEventListener('click', () => {
+      caching = !caching;
+      cacheBtn.setAttribute('aria-checked', String(caching));
+      if (!caching) insts.forEach((st) => (st.admitted.clear(), st.cache.clear(), st.streak.fill(0)));
+      render();
+      say(caching ? 'Local caching on. Keys must stay hot for two windows before they are cached.' : 'Local caching off. Every read goes to Redis.');
+    });
+    root.querySelectorAll<HTMLInputElement>('input[name="cd-pattern"]').forEach((r) =>
+      r.addEventListener('change', () => {
+        pattern = r.value as keyof typeof WEIGHTS;
+        say(pattern === 'hot' ? 'Pattern: one key takes most reads.' : 'Pattern: uniform. No key stays hot enough to be admitted.');
+      }),
+    );
+    root.querySelector('[data-cd-write]')?.addEventListener('click', write);
+    root.querySelector('[data-cd-reset]')?.addEventListener('click', () => {
+      reset();
+      renderStats();
+    });
+  });
+</script>

@@ -2,13 +2,17 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import SectionHeader from '../components/SectionHeader.astro';
-import Trace from '../components/Trace.astro';
-import Flow from '../components/Flow.astro';
-import Shots from '../components/Shots.astro';
+import Ambient from '../components/hero/Ambient.astro';
+import HeroScene from '../components/hero/HeroScene.astro';
+import CareerStrip from '../components/hero/CareerStrip.astro';
+import BrowserGallery from '../components/BrowserGallery.astro';
+import LockDemo from '../components/demos/LockDemo.astro';
+import CacheDemo from '../components/demos/CacheDemo.astro';
+import DeviceStage from '../components/demos/DeviceStage.astro';
+import Expertise from '../components/Expertise.astro';
 import ProjectLinks from '../components/ProjectLinks.astro';
-import { profile, experience, expertise, education } from '../data/cv';
-import { projects, moreProjects, getProject } from '../data/projects';
-import { keyshiftFlow, extendpadFlow } from '../data/flows';
+import { profile, experience, education } from '../data/cv';
+import { moreProjects, getProject } from '../data/projects';
 import { getPosts, formatDate } from '../lib/writing';
 import { url } from '../lib/url';
 
@@ -16,10 +20,15 @@ const locklens = getProject('locklens');
 const keyshift = getProject('keyshift');
 const extendpad = getProject('extendpad');
 const posts = (await getPosts()).slice(0, 3);
-
-// Section numbers follow what is actually on the page.
 const order = ['work', 'experience', 'expertise', 'about', 'education', ...(posts.length ? ['writing'] : []), 'contact'];
 const num = (id: string) => String(order.indexOf(id) + 1).padStart(2, '0');
+const focus = [
+  { label: 'Backend engineering', tone: 'indigo' },
+  { label: 'Distributed systems', tone: 'violet' },
+  { label: 'Databases', tone: 'cyan' },
+  { label: 'Infrastructure', tone: 'blue' },
+  { label: 'Open-source engineering', tone: 'emerald' },
+];
 
 const home = new URL(url(), Astro.site).toString();
 const jsonLd = [
@@ -41,163 +50,160 @@ const jsonLd = [
   },
 ];
 ---
-<Base home type="profile" jsonLd={jsonLd} lightbox>
+<Base home type="profile" jsonLd={jsonLd} lightbox zone="brand">
   <main id="main">
     <!-- Hero -->
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-bg" aria-hidden="true"></div>
-      <div class="container">
-        <div class="grid-12 hero-grid">
-          <div class="hero-main">
-            <p class="hero-kicker label">{profile.role}</p>
-            <h1 id="hero-title">{profile.name}</h1>
-            <ul class="hero-focus" aria-label="Focus areas">
-              {profile.focus.map((f) => <li>{f}</li>)}
-            </ul>
-            <p class="hero-statement">{profile.statement}</p>
-            <p class="hero-intro">{profile.intro}</p>
-            <div class="hero-actions">
-              <a class="btn btn-primary" href="#work">Explore my work <Icon name="arrow-right" size={17} class="i-arrow" /></a>
-              <a class="btn btn-secondary" href={profile.github} rel="me noopener"><Icon name="github" size={17} /> GitHub</a>
-              <a class="btn btn-quiet" href={profile.linkedin} rel="me noopener"><Icon name="linkedin" size={16} /> LinkedIn</a>
-            </div>
-          </div>
-          <div class="hero-visual">
-            <Trace />
+    <section class="hero" aria-labelledby="hero-title" data-zone="brand">
+      <Ambient particles beam />
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="hero-kicker"><span class="pulse-dot" aria-hidden="true"></span>{profile.role} <span class="hero-kicker-dim">· currently in core banking</span></p>
+          <h1 id="hero-title" class="hero-name">
+            <span class="hn hn-1">Nguyen</span>
+            <span class="hn hn-2 grad-text is-live">Gia Huy</span>
+          </h1>
+          <ul class="hero-focus" aria-label="Focus areas">
+            {focus.map((f) => <li class={`tone-${f.tone}`}><i aria-hidden="true"></i>{f.label}</li>)}
+          </ul>
+          <p class="hero-statement">{profile.statement}</p>
+          <p class="hero-intro">{profile.intro}</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary btn-lg" href="#work">Explore my work <Icon name="arrow-right" size={17} class="i-arrow" /></a>
+            <a class="btn btn-secondary btn-lg" href={profile.github} rel="me noopener"><Icon name="github" size={17} /> GitHub</a>
+            <a class="btn btn-quiet btn-lg" href={profile.linkedin} rel="me noopener"><Icon name="linkedin" size={16} /> LinkedIn</a>
           </div>
         </div>
-
-        <ol class="hero-index" aria-label="Selected work">
-          {projects.map((p, i) => (
-            <li>
-              <a href={`#${p.slug}`}>
-                <span class="hi-top label"><span class="sh-num">{String(i + 1).padStart(2, '0')}</span>{p.area}</span>
-                <span class="hi-name">{p.name}<Icon name="arrow-down" size={16} /></span>
-                <span class="hi-text">{p.tagline}</span>
-              </a>
-            </li>
-          ))}
-        </ol>
+        <div class="hero-visual">
+          <HeroScene />
+        </div>
+      </div>
+      <div class="container">
+        <CareerStrip />
       </div>
     </section>
 
     <!-- Selected work -->
-    <section class="section" id="work" aria-labelledby="work-title">
-      <div class="container">
-        <SectionHeader
-          id="work-title"
-          num={num('work')}
-          label="Selected work"
-          title="Selected engineering work."
-          lead="Personal projects, built in the open. Each one starts from a specific engineering problem and comes with documentation, tests and a site of its own."
-        />
+    <div id="work" class="work">
+      <section class="section work-intro" aria-labelledby="work-title" data-zone="brand">
+        <div class="container">
+          <SectionHeader
+            id="work-title"
+            num={num('work')}
+            label="Selected work"
+            title="Three projects, three kinds of systems."
+            lead="Personal projects, built in the open: a PostgreSQL investigation tool, a Redis caching SDK and a display pipeline. Each starts from a concrete engineering problem and comes with documentation, tests and its own site."
+          />
+          <ol class="work-index stagger" aria-label="Projects on this page">
+            {[locklens, keyshift, extendpad].map((p, i) => (
+              <li class={`t-${p.slug}`}>
+                <a href={`#${p.slug}`} class="lit">
+                  <span class="wi-num label">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="wi-name grad-text">{p.name}</span>
+                  <span class="wi-area label">{p.area}</span>
+                  <Icon name="arrow-down" size={18} class="wi-arrow" />
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
 
-        <!-- LockLens: screenshot-led -->
-        <article class="feature" id="locklens" aria-labelledby="locklens-title">
-          <div class="feature-head reveal">
-            <div>
-              <p class="feature-meta label"><span>{locklens.area}</span></p>
-              <h3 id="locklens-title" class="feature-name"><a href={url('projects/locklens/')}>{locklens.name}</a></h3>
-              <p class="feature-tagline">{locklens.tagline}</p>
+      <!-- LockLens: screenshots and a lock-contention walkthrough -->
+      <section class="act t-locklens" id="locklens" aria-labelledby="locklens-title" data-zone="locklens">
+        <div class="act-glow" aria-hidden="true"></div>
+        <div class="container">
+          <div class="grid-12 act-split">
+            <div class="act-intro reveal">
+              <p class="act-kicker label"><span class="act-num">01</span>{locklens.area}</p>
+              <h3 id="locklens-title" class="act-name grad-text" style="view-transition-name: name-locklens">{locklens.name}</h3>
+              <p class="act-tagline">{locklens.tagline}</p>
+              <p class="act-text" set:html={locklens.problem} />
+              <p class="act-text" set:html={locklens.approach} />
+              <ul class="act-points">{locklens.highlights.slice(0, 3).map((h) => <li set:html={h} />)}</ul>
+              <ProjectLinks links={locklens.links} name={locklens.name} />
+              <p class="status"><span><span class="status-kind">{locklens.kind}.</span> {locklens.status}</span></p>
             </div>
-            <ProjectLinks links={locklens.links} name={locklens.name} />
-          </div>
-          <div class="grid-12 feature-body">
-            <div class="feature-copy reveal">
-              <div class="block"><span class="label">Problem</span><p set:html={locklens.problem} /></div>
-              <div class="block"><span class="label">Approach</span><p set:html={locklens.approach} /></div>
-              <div class="block">
-                <span class="label">What it does</span>
-                <ul class="points">{locklens.highlights.map((h) => <li set:html={h} />)}</ul>
-              </div>
-              <div class="block">
-                <span class="label">Built with</span>
-                <ul class="stack" aria-label="LockLens technologies">{locklens.stack.map((t) => <li>{t}</li>)}</ul>
-              </div>
-              <div class="block"><p class="status"><span><span class="status-kind">{locklens.kind}.</span> {locklens.status}</span></p></div>
-            </div>
-            <div class="feature-media reveal" style="--d:80ms">
-              <Shots shots={locklens.shots!.slice(0, 3)} />
+            <div class="act-media reveal" style="--d:120ms">
+              <BrowserGallery shots={locklens.shots!} id="ll-gallery" address="127.0.0.1:8080 · LockLens demo lab" tilt />
             </div>
           </div>
-        </article>
+          <div class="reveal"><LockDemo /></div>
+        </div>
+      </section>
 
-        <!-- KeyShift: diagram-led -->
-        <article class="feature feature-flip" id="keyshift" aria-labelledby="keyshift-title">
-          <div class="feature-head reveal">
+      <!-- KeyShift: simulation first, then the measured results -->
+      <section class="act t-keyshift" id="keyshift" aria-labelledby="keyshift-title" data-zone="keyshift">
+        <div class="act-glow" aria-hidden="true"></div>
+        <div class="container">
+          <div class="act-banner reveal">
             <div>
-              <p class="feature-meta label"><span>{keyshift.area}</span></p>
-              <h3 id="keyshift-title" class="feature-name"><a href={url('projects/keyshift/')}>{keyshift.name}</a></h3>
-              <p class="feature-tagline">{keyshift.tagline}</p>
+              <p class="act-kicker label"><span class="act-num">02</span>{keyshift.area}</p>
+              <h3 id="keyshift-title" class="act-name grad-text" style="view-transition-name: name-keyshift">{keyshift.name}</h3>
+              <p class="act-tagline">{keyshift.tagline}</p>
             </div>
             <ProjectLinks links={keyshift.links} name={keyshift.name} />
           </div>
-          <div class="grid-12 feature-body">
-            <div class="feature-copy reveal" style="--d:80ms">
-              <div class="block"><span class="label">Problem</span><p set:html={keyshift.problem} /></div>
-              <div class="block"><span class="label">Approach</span><p set:html={keyshift.approach} /></div>
-              <div class="block">
-                <span class="label">Built with</span>
-                <ul class="stack" aria-label="KeyShift technologies">{keyshift.stack.map((t) => <li>{t}</li>)}</ul>
-              </div>
-              <div class="block"><p class="status"><span><span class="status-kind">{keyshift.kind}.</span> {keyshift.status}</span></p></div>
+          <div class="reveal"><CacheDemo /></div>
+          <div class="grid-12 act-split act-split-low">
+            <div class="act-intro reveal">
+              <p class="act-text" set:html={keyshift.problem} />
+              <p class="act-text" set:html={keyshift.approach} />
+              <ul class="stack" aria-label="KeyShift technologies">{keyshift.stack.map((t) => <li>{t}</li>)}</ul>
+              <p class="status"><span><span class="status-kind">{keyshift.kind}.</span> {keyshift.status}</span></p>
             </div>
-            <div class="feature-media reveal">
-              <Flow flow={{ ...keyshiftFlow, lanes: keyshiftFlow.lanes.slice(0, 4), legend: { accent: 'invalidation' } }} />
+            <div class="bench-card reveal lit" style="--d:100ms">
+              <p class="bench-card-head"><span class="label">Measured</span><span class="demo-badge demo-badge-real">Benchmark suite</span></p>
+              <div class="range">
+                <p class="range-value"><span data-count="50">50</span>–<span data-count="86">86</span>%</p>
+                <p class="range-label">fewer GETs reaching Redis, on workloads with locality</p>
+                <div class="range-track" aria-hidden="true"><span class="range-fill" style="--from:50%;--to:86%"></span></div>
+                <div class="range-scale label" aria-hidden="true"><span>0%</span><span>50%</span><span>86%</span><span>100%</span></div>
+              </div>
+              <ul class="bench-mini">
+                <li><span class="bm-value">≤ <span data-count="547">547</span></span><span class="bm-label">keys tracked by Redis per instance</span></li>
+                <li><span class="bm-value">0</span><span class="bm-label">stale reads with connections killed and Redis restarted mid-run</span></li>
+                <li><span class="bm-value">~<span data-count="0.3" data-decimals="1">0.3</span> µs</span><span class="bm-label">per local cache hit, rueidis driver</span></li>
+              </ul>
+              <p class="bench-note">{keyshift.metrics?.note} <a class="link" href={url('projects/keyshift/#benchmarks')}>Method and conditions</a></p>
             </div>
           </div>
-          {keyshift.metrics && (
-            <div class="reveal" style="margin-top: var(--s-7)">
-              <ul class="metrics" aria-label="KeyShift benchmark results">
-                {keyshift.metrics.items.map((m) => (
-                  <li><span class="metric-value">{m.value}</span><span class="metric-label">{m.label}</span></li>
-                ))}
-              </ul>
-              <p class="metrics-note"><span class="tag">Benchmark</span><span>{keyshift.metrics.note} <a class="link" href={url('projects/keyshift/#benchmarks')}>Method and conditions</a></span></p>
-            </div>
-          )}
-        </article>
+        </div>
+      </section>
 
-        <!-- ExtendPad: pipeline-led -->
-        <article class="feature feature-wide" id="extendpad" aria-labelledby="extendpad-title">
-          <div class="feature-head reveal">
+      <!-- ExtendPad: device composition and pipeline -->
+      <section class="act t-extendpad" id="extendpad" aria-labelledby="extendpad-title" data-zone="extendpad">
+        <div class="act-glow" aria-hidden="true"></div>
+        <div class="container">
+          <div class="act-banner reveal">
             <div>
-              <p class="feature-meta label"><span>{extendpad.area}</span></p>
-              <h3 id="extendpad-title" class="feature-name"><a href={url('projects/extendpad/')}>{extendpad.name}</a></h3>
-              <p class="feature-tagline">{extendpad.tagline}</p>
+              <p class="act-kicker label"><span class="act-num">03</span>{extendpad.area}</p>
+              <h3 id="extendpad-title" class="act-name grad-text" style="view-transition-name: name-extendpad">{extendpad.name}</h3>
+              <p class="act-tagline">{extendpad.tagline}</p>
             </div>
             <ProjectLinks links={extendpad.links} name={extendpad.name} />
           </div>
-          <div class="grid-12 feature-body">
-            <div class="feature-media reveal">
-              <Flow flow={extendpadFlow} />
+          <div class="reveal"><DeviceStage /></div>
+          <div class="grid-12 act-split act-split-low">
+            <div class="act-intro reveal">
+              <p class="act-text" set:html={extendpad.problem} />
+              <p class="act-text" set:html={extendpad.approach} />
             </div>
-            <div class="feature-copy reveal">
-              <div>
-                <div class="block"><span class="label">Problem</span><p set:html={extendpad.problem} /></div>
-                <div class="block"><span class="label">Approach</span><p set:html={extendpad.approach} /></div>
-              </div>
-              <div>
-                <div class="block">
-                  <span class="label">Engineering details</span>
-                  <ul class="points">{extendpad.highlights.map((h) => <li set:html={h} />)}</ul>
-                </div>
-                <div class="block">
-                  <span class="label">Built with</span>
-                  <ul class="stack" aria-label="ExtendPad technologies">{extendpad.stack.map((t) => <li>{t}</li>)}</ul>
-                </div>
-                <div class="block"><p class="status"><span><span class="status-kind">{extendpad.kind}.</span> {extendpad.status}</span></p></div>
-              </div>
+            <div class="act-detail reveal" style="--d:100ms">
+              <ul class="act-points">{extendpad.highlights.map((h) => <li set:html={h} />)}</ul>
+              <ul class="stack" aria-label="ExtendPad technologies">{extendpad.stack.map((t) => <li>{t}</li>)}</ul>
+              <p class="status"><span><span class="status-kind">{extendpad.kind}.</span> {extendpad.status}</span></p>
             </div>
           </div>
-        </article>
+        </div>
+      </section>
 
-        <!-- Smaller projects -->
-        <div class="more reveal">
-          <h3 class="label">Also built</h3>
+      <!-- Smaller projects -->
+      <section class="more" aria-labelledby="more-title" data-zone="quiet">
+        <div class="container">
+          <h3 id="more-title" class="label">Also built</h3>
           <ul class="more-list">
             {moreProjects.map((p) => (
-              <li class="more-item">
+              <li class="more-item lit">
                 <div class="more-name"><h4>{p.name}</h4><span class="label">{p.area}</span></div>
                 <div class="more-text">
                   <p>{p.summary}</p>
@@ -210,33 +216,44 @@ const jsonLd = [
             ))}
           </ul>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
     <!-- Experience -->
-    <section class="section" id="experience" aria-labelledby="experience-title">
+    <section class="section t-career" id="experience" aria-labelledby="experience-title" data-zone="career">
       <div class="container">
         <SectionHeader
           id="experience-title"
           num={num('experience')}
           label="Experience"
-          title="Professional experience."
-          lead="Backend, platform and data work across blockchain, cloud infrastructure, utilities and banking."
+          title="From blockchain backends to core banking."
+          lead="Backend, platform and data engineering roles, newest first: core banking, AWS data pipelines, a private Kubernetes cloud, and event-driven blockchain services."
         />
-        <ol class="xp">
+        <ol class="tl">
           {experience.map((r) => (
-            <li class="xp-item grid-12 reveal">
-              <p class="xp-when">
-                <span><time datetime={r.startISO}>{r.start}</time> – {r.endISO ? <time datetime={r.endISO}>{r.end}</time> : r.end}</span>
-                {!r.endISO && <span class="xp-now">Current role</span>}
-              </p>
-              <div class="xp-body">
-                <div class="xp-head">
-                  <h3>{r.company}{r.org && <span class="xp-org"> · {r.org}</span>}</h3>
-                  <p class="xp-title">{r.title}</p>
+            <li class:list={['tl-item reveal', { 'is-now': !r.endISO }]}>
+              <div class="tl-when">
+                <span class="mono"><time datetime={r.startISO}>{r.start}</time> – {r.endISO ? <time datetime={r.endISO}>{r.end}</time> : r.end}</span>
+                {!r.endISO && <span class="tl-now">Current role</span>}
+              </div>
+              <span class="tl-dot" aria-hidden="true"></span>
+              <div class="tl-body lit">
+                <div class="tl-head">
+                  <h3>{r.company}{r.org && <span class="tl-org"> · {r.org}</span>}</h3>
+                  <p class="tl-title">{r.title}</p>
                 </div>
-                <p class="xp-domain">{r.domain}</p>
-                <ul class="points">{r.points.map((pt) => <li>{pt}</li>)}</ul>
+                <p class="tl-domain">{r.domain}</p>
+                <ul class="act-points">{r.points.map((pt) => <li>{pt}</li>)}</ul>
+                {r.metrics && (
+                  <ul class="tl-metrics" aria-label={`Highlights at ${r.company}`}>
+                    {r.metrics.map((m) => (
+                      <li>
+                        <span class="tl-mv">{m.prefix}<span data-count={m.value}>{m.value}</span>{m.suffix}</span>
+                        <span class="tl-ml">{m.label}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 <ul class="stack" aria-label={`Technologies at ${r.company}`}>{r.stack.map((t) => <li>{t}</li>)}</ul>
               </div>
             </li>
@@ -246,37 +263,21 @@ const jsonLd = [
     </section>
 
     <!-- Expertise -->
-    <section class="section" id="expertise" aria-labelledby="expertise-title">
+    <section class="section" id="expertise" aria-labelledby="expertise-title" data-zone="brand">
       <div class="container">
         <SectionHeader
           id="expertise-title"
           num={num('expertise')}
           label="Expertise"
-          title="What I work with, and where."
-          lead="Grouped by the kind of problem. Each group points to where I have used it, at work or in my own projects."
+          title="An engineering map, with sources."
+          lead="Grouped by the kind of problem. Each domain names the tools and points to where I have used them, at work or in my own projects."
         />
-        <div class="ex-wrap reveal">
-          <div class="ex-head label" aria-hidden="true"><span>Area</span><span>Tools</span><span>Used in</span></div>
-          <ul class="ex">
-            {expertise.map((e) => (
-              <li class="ex-row">
-                <div class="ex-area"><h3>{e.area}</h3><p>{e.about}</p></div>
-                <div class="ex-tools"><ul aria-label={`${e.area}: tools`}>{e.tools.map((t) => <li>{t}</li>)}</ul></div>
-                <div class="ex-used">
-                  <span class="label">Used in</span>
-                  <ul aria-label={`${e.area}: used in`}>
-                    {e.evidence.map((ev) => <li>{ev.href ? <a class="link" href={ev.href}>{ev.label}</a> : ev.label}</li>)}
-                  </ul>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <Expertise />
       </div>
     </section>
 
     <!-- About -->
-    <section class="section" id="about" aria-labelledby="about-title">
+    <section class="section" id="about" aria-labelledby="about-title" data-zone="quiet">
       <div class="container">
         <SectionHeader id="about-title" num={num('about')} label="About" title="Backend systems, and the tools around them." />
         <div class="grid-12 about-grid">
@@ -295,9 +296,9 @@ const jsonLd = [
               project that turns an Android tablet into a Mac display.
             </p>
           </div>
-          <div class="about-side reveal" style="--d:80ms">
+          <div class="about-side reveal" style="--d:100ms">
             <h3 class="label">What my projects have in common</h3>
-            <ul class="patterns">
+            <ol class="patterns">
               <li>
                 <h4>Read-only where it matters</h4>
                 <p>LockLens connects with a read-only role and never changes the databases it watches. ExtendPad’s Mac app listens only on 127.0.0.1.</p>
@@ -314,17 +315,17 @@ const jsonLd = [
                 <h4>Limits written down</h4>
                 <p>Each project documents what it doesn’t do yet, and benchmark figures come with the machine and method they were measured on.</p>
               </li>
-            </ul>
+            </ol>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Education -->
-    <section class="section" id="education" aria-labelledby="education-title">
+    <section class="section section-compact" id="education" aria-labelledby="education-title" data-zone="quiet">
       <div class="container grid-12 split">
         <SectionHeader id="education-title" num={num('education')} label="Education" title="Education and certification." />
-        <ul class="edu split-body reveal">
+        <ul class="edu split-body stagger">
           {education.map((e) => (
             <li class="edu-row">
               <span class="label">{e.kind}</span>
@@ -337,7 +338,7 @@ const jsonLd = [
     </section>
 
     {posts.length > 0 && (
-      <section class="section" id="writing" aria-labelledby="writing-title">
+      <section class="section" id="writing" aria-labelledby="writing-title" data-zone="quiet">
         <div class="container">
           <SectionHeader id="writing-title" num={num('writing')} label="Writing" title="Technical writing." />
           <ul class="posts reveal">
@@ -357,11 +358,11 @@ const jsonLd = [
     )}
 
     <!-- Contact -->
-    <section class="contact" id="contact" aria-labelledby="contact-title">
-      <div class="hero-bg" aria-hidden="true"></div>
+    <section class="contact" id="contact" aria-labelledby="contact-title" data-zone="brand">
+      <Ambient />
       <div class="container contact-inner reveal">
         <p class="sh-label label"><span class="sh-num">{num('contact')}</span>Contact</p>
-        <h2 id="contact-title">Get in touch.</h2>
+        <h2 id="contact-title"><span class="grad-text is-live">Get in touch.</span></h2>
         <p class="contact-text">
           Email is the best way to reach me, whether it’s about backend systems, databases, or one of the projects above.
         </p>

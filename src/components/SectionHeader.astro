@@ -10,6 +10,6 @@ const { id, num, label, title, lead } = Astro.props;
 ---
 <header class="sh reveal">
   <p class="sh-label label"><span class="sh-num">{num}</span>{label}</p>
-  <h2 id={id}>{title}</h2>
+  <h2 id={id}><span class="heading-reveal">{title}</span></h2>
   {lead && <p class="sh-lead" set:html={lead} />}
 </header>

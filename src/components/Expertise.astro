@@ -1,0 +1,33 @@
+---
+// Expertise as a bento of engineering domains. Everything is readable without interaction;
+// hover and focus only add light.
+import { expertise } from '../data/cv';
+
+const glyphs: Record<string, string> = {
+  code: '<path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/>',
+  db: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+  mesh: '<circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><circle cx="12" cy="9" r="2"/><path d="M6.6 7.2 10.4 8.4M17.4 7.2 13.6 8.4M12 11v5M6.3 7.6l4.6 8.8M17.7 7.6l-4.6 8.8"/>',
+  cloud: '<path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 0 1 0 9Z"/>',
+  pulse: '<path d="M2 12h4l3-8 4 16 3-8h6"/>',
+  bank: '<path d="M3 21h18M5 18v-7M9.5 18v-7M14.5 18v-7M19 18v-7M12 3l9 5H3z"/>',
+  pipe: '<circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M7.5 12H12m0 0V8.5a2.5 2.5 0 0 1 2.5-2.5h2M12 12v3.5a2.5 2.5 0 0 0 2.5 2.5h2"/>',
+};
+---
+<ul class="bento stagger">
+  {expertise.map((e, i) => (
+    <li class:list={['tile lit', `tone-${e.tone}`, `tile-${i}`]}>
+      <div class="tile-top">
+        <svg class="tile-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={glyphs[e.glyph]} />
+        <h3>{e.area}</h3>
+      </div>
+      <p class="tile-about">{e.about}</p>
+      <ul class="tile-tools" aria-label={`${e.area}: tools`}>{e.tools.map((t) => <li>{t}</li>)}</ul>
+      <div class="tile-used">
+        <span class="label">Used in</span>
+        <ul aria-label={`${e.area}: used in`}>
+          {e.evidence.map((ev) => <li>{ev.href ? <a class="link" href={ev.href}>{ev.label}</a> : ev.label}</li>)}
+        </ul>
+      </div>
+    </li>
+  ))}
+</ul>

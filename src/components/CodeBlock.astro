@@ -1,14 +1,21 @@
 ---
 import { Code } from 'astro:components';
+import Icon from './Icon.astro';
 
 interface Props {
   code: string;
   lang: string;
   title?: string;
+  id: string;
 }
-const { code, lang, title } = Astro.props;
+const { code, lang, title, id } = Astro.props;
 ---
-<div class="code-block">
-  {title && <div class="code-head"><span class="label">{title}</span></div>}
-  <Code code={code} lang={lang as any} themes={{ light: 'github-light', dark: 'github-dark-dimmed' }} defaultColor={false} />
+<div class="code-block" id={id}>
+  <div class="code-head">
+    <span class="label"><span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>{title}</span>
+    <button type="button" class="copy-btn" data-copy-target={id} aria-label={`Copy ${title ?? 'code'}`}>
+      <Icon name="copy" size={13} class="i-copy" /><Icon name="check" size={13} class="i-check" /><span data-copy-label>Copy</span>
+    </button>
+  </div>
+  <Code code={code} lang={lang as any} themes={{ light: 'github-light', dark: 'github-dark-default' }} defaultColor={false} />
 </div>
